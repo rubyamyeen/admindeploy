@@ -28,11 +28,13 @@ export default function ImageTable({ initialImages }: { initialImages: Image[] }
   const [formData, setFormData] = useState<ImageFormData>(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const router = useRouter();
 
   const openCreateModal = () => {
     setEditingImage(null);
     setFormData(emptyForm);
+    setErrorMessage(null);
     setIsModalOpen(true);
   };
 
@@ -45,6 +47,7 @@ export default function ImageTable({ initialImages }: { initialImages: Image[] }
       additional_context: image.additional_context || "",
       image_description: image.image_description || "",
     });
+    setErrorMessage(null);
     setIsModalOpen(true);
   };
 
@@ -52,6 +55,7 @@ export default function ImageTable({ initialImages }: { initialImages: Image[] }
     setIsModalOpen(false);
     setEditingImage(null);
     setFormData(emptyForm);
+    setErrorMessage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,9 +113,15 @@ export default function ImageTable({ initialImages }: { initialImages: Image[] }
 
       closeModal();
       router.refresh();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error saving image:", error);
-      alert("Failed to save image. Please try again.");
+      const message =
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" && error !== null && "message" in error
+            ? String((error as { message: unknown }).message)
+            : "Unknown error occurred";
+      setErrorMessage(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -128,9 +138,15 @@ export default function ImageTable({ initialImages }: { initialImages: Image[] }
       setImages(images.filter((img) => img.id !== id));
       setDeleteConfirm(null);
       router.refresh();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error deleting image:", error);
-      alert("Failed to delete image. Please try again.");
+      const message =
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" && error !== null && "message" in error
+            ? String((error as { message: unknown }).message)
+            : "Unknown error occurred";
+      alert(`Failed to delete image: ${message}`);
     }
   };
 
@@ -276,6 +292,11 @@ export default function ImageTable({ initialImages }: { initialImages: Image[] }
               </h2>
             </div>
             <form onSubmit={handleSubmit}>
+              {errorMessage && (
+                <div className="px-6 py-3 bg-red-50 border-b border-red-200">
+                  <p className="text-sm text-red-700">{errorMessage}</p>
+                </div>
+              )}
               <div className="px-6 py-4 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
