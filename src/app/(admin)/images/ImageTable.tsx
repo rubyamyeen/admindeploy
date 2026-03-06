@@ -1,17 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import type { Image } from "@/types/database";
 import { useRouter } from "next/navigation";
-
-interface ImageFormData {
-  url: string;
-  is_public: boolean;
-  is_common_use: boolean;
-  additional_context: string;
-  image_description: string;
-}
+import { createImage, updateImage, deleteImage, type ImageFormData } from "./actions";
 
 const emptyForm: ImageFormData = {
   url: "",
@@ -61,92 +53,58 @@ export default function ImageTable({ initialImages }: { initialImages: Image[] }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    const supabase = createClient();
+    setErrorMessage(null);
 
     try {
       if (editingImage) {
-        const { error } = await supabase
-          .from("images")
-          .update({
-            url: formData.url,
-            is_public: formData.is_public,
-            is_common_use: formData.is_common_use,
-            additional_context: formData.additional_context || null,
-            image_description: formData.image_description || null,
-            modified_datetime_utc: new Date().toISOString(),
-          })
-          .eq("id", editingImage.id);
+        const result = await updateImage(editingImage.id, formData);
 
-        if (error) throw error;
+        if (result.error) {
+          setErrorMessage(result.error);
+          return;
+        }
 
         setImages(
           images.map((img) =>
-            img.id === editingImage.id
-              ? {
-                  ...img,
-                  ...formData,
-                  additional_context: formData.additional_context || null,
-                  image_description: formData.image_description || null,
-                  modified_datetime_utc: new Date().toISOString(),
-                }
-              : img
+            img.id === editingImage.id ? (result.data as Image) : img
           )
         );
       } else {
-        const { data, error } = await supabase
-          .from("images")
-          .insert({
-            url: formData.url,
-            is_public: formData.is_public,
-            is_common_use: formData.is_common_use,
-            additional_context: formData.additional_context || null,
-            image_description: formData.image_description || null,
-          })
-          .select()
-          .single();
+        const result = await createImage(formData);
 
-        if (error) throw error;
+        if (result.error) {
+          setErrorMessage(result.error);
+          return;
+        }
 
-        setImages([data as Image, ...images]);
+        setImages([result.data as Image, ...images]);
       }
 
       closeModal();
       router.refresh();
     } catch (error: unknown) {
       console.error("Error saving image:", error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : typeof error === "object" && error !== null && "message" in error
-            ? String((error as { message: unknown }).message)
-            : "Unknown error occurred";
-      setErrorMessage(message);
+      setErrorMessage(error instanceof Error ? error.message : "Unknown error occurred");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    const supabase = createClient();
-
     try {
-      const { error } = await supabase.from("images").delete().eq("id", id);
+      const result = await deleteImage(id);
 
-      if (error) throw error;
+      if (result.error) {
+        alert(`Failed to delete image: ${result.error}`);
+        return;
+      }
 
       setImages(images.filter((img) => img.id !== id));
       setDeleteConfirm(null);
       router.refresh();
     } catch (error: unknown) {
       console.error("Error deleting image:", error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : typeof error === "object" && error !== null && "message" in error
-            ? String((error as { message: unknown }).message)
-            : "Unknown error occurred";
-      alert(`Failed to delete image: ${message}`);
+      alert(`Failed to delete image: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
