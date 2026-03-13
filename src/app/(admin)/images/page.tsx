@@ -1,33 +1,56 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Image } from "@/types/database";
 import ImageTable from "./ImageTable";
 
-async function getImages() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("images")
-    .select("*")
-    .order("created_datetime_utc", { ascending: false });
+interface ImageRow {
+  id: string;
+  created_datetime_utc: string;
+  modified_datetime_utc: string | null;
+  url: string | null;
+  is_common_use: boolean;
+  profile_id: string | null;
+  additional_context: string | null;
+  is_public: boolean;
+  image_description: string | null;
+  celebrity_recognition: string | null;
+}
 
-  if (error) {
-    console.error("Error fetching images:", error);
-    return [];
+async function getImages(): Promise<{ data: ImageRow[]; error: string | null }> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("images")
+      .select("id, created_datetime_utc, modified_datetime_utc, url, is_common_use, profile_id, additional_context, is_public, image_description, celebrity_recognition")
+      .order("created_datetime_utc", { ascending: false });
+
+    if (error) {
+      console.error("[Images] Supabase error:", error);
+      console.error("[Images] Table: images");
+      return { data: [], error: `Table: images - ${error.message}` };
+    }
+
+    return { data: (data ?? []) as ImageRow[], error: null };
+  } catch (err) {
+    console.error("[Images] Unexpected error:", err);
+    return { data: [], error: err instanceof Error ? err.message : "Unknown error" };
   }
-
-  return data as Image[];
 }
 
 export default async function ImagesPage() {
-  const images = await getImages();
+  const { data: images, error } = await getImages();
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Images</h1>
-        <span className="text-sm text-gray-500">
-          {images.length} total images
-        </span>
+        <span className="text-sm text-gray-500">{images.length} total</span>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-700 font-medium">Failed to load data</p>
+          <p className="text-red-600 text-sm mt-1 font-mono">{error}</p>
+        </div>
+      )}
 
       <ImageTable initialImages={images} />
     </div>

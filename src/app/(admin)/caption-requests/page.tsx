@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import DataTable from "@/components/DataTable";
+import CaptionRequestsTable from "./CaptionRequestsTable";
 
 interface CaptionRequestRow {
   id: number;
@@ -47,28 +47,7 @@ export default async function CaptionRequestsPage() {
         </div>
       )}
 
-      <DataTable
-        data={data}
-        columns={[
-          { key: "id", label: "ID", render: (v) => v != null ? String(v) : "—" },
-          { key: "profiles", label: "User", sortable: false, render: (_, row) => {
-            const r = row as CaptionRequestRow;
-            return r.profiles?.email ?? "—";
-          }},
-          { key: "image_id", label: "Image ID", render: (v) => (
-            <span className="font-mono text-xs">{v != null ? String(v).slice(0, 8) + "..." : "—"}</span>
-          )},
-          { key: "created_datetime_utc", label: "Created", render: (v) => {
-            if (!v) return "—";
-            try {
-              return new Date(String(v)).toLocaleString();
-            } catch {
-              return "—";
-            }
-          }},
-        ]}
-        searchKeys={[]}
-      />
+      <CaptionRequestsTable initialData={data} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import DataTable from "@/components/DataTable";
+import HumorFlavorStepsTable from "./HumorFlavorStepsTable";
 
 interface HumorFlavorStepRow {
   id: number;
@@ -49,23 +49,7 @@ export default async function HumorFlavorStepsPage() {
         </div>
       )}
 
-      <DataTable
-        data={data}
-        columns={[
-          { key: "id", label: "ID", render: (v) => v != null ? String(v) : "—" },
-          { key: "humor_flavors", label: "Flavor", sortable: false, render: (_, row) => {
-            const r = row as HumorFlavorStepRow;
-            return r.humor_flavors?.slug ?? "—";
-          }},
-          { key: "order_by", label: "Order", render: (v) => v != null ? String(v) : "—" },
-          { key: "description", label: "Description", render: (v) => (
-            <span className="max-w-xs truncate block">{v != null ? String(v) : "—"}</span>
-          )},
-          { key: "llm_model_id", label: "Model ID", render: (v) => v != null ? String(v) : "—" },
-          { key: "llm_temperature", label: "Temp", render: (v) => v != null ? String(v) : "—" },
-        ]}
-        searchKeys={["description"]}
-      />
+      <HumorFlavorStepsTable initialData={data} />
     </div>
   );
 }

@@ -1,33 +1,67 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Profile } from "@/types/database";
 
-export async function requireSuperAdmin(): Promise<{
-  user: { id: string; email: string };
-  profile: Profile;
-}> {
-  const supabase = await createClient();
+interface Profile {
+  id: string;
+  email: string | null;
+  is_superadmin: boolean;
+}
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+interface AuthResult {
+  user: { id: string; email: string } | null;
+  profile: Profile | null;
+  error: string | null;
+}
 
-  if (!user) {
-    redirect("/login");
+export async function requireSuperAdmin(): Promise<AuthResult> {
+  try {
+    const supabase = await createClient();
+
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+
+    if (authError) {
+      console.error("[Auth] getUser error:", authError);
+      return { user: null, profile: null, error: authError.message };
+    }
+
+    if (!authData.user) {
+      redirect("/login");
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, email, is_superadmin")
+      .eq("id", authData.user.id)
+      .single();
+
+    if (profileError) {
+      console.error("[Auth] profiles query error:", profileError);
+      return {
+        user: { id: authData.user.id, email: authData.user.email ?? "" },
+        profile: null,
+        error: `Failed to load profile: ${profileError.message}`,
+      };
+    }
+
+    if (!profile || !profile.is_superadmin) {
+      redirect("/unauthorized");
+    }
+
+    return {
+      user: { id: authData.user.id, email: authData.user.email ?? "" },
+      profile: profile as Profile,
+      error: null,
+    };
+  } catch (err) {
+    // Re-throw redirect errors (they're not real errors)
+    if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
+      throw err;
+    }
+    console.error("[Auth] Unexpected error:", err);
+    return {
+      user: null,
+      profile: null,
+      error: err instanceof Error ? err.message : "Unknown auth error",
+    };
   }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || !profile.is_superadmin) {
-    redirect("/unauthorized");
-  }
-
-  return {
-    user: { id: user.id, email: user.email ?? "" },
-    profile: profile as Profile,
-  };
 }

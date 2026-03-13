@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import DataTable from "@/components/DataTable";
+import CaptionsTable from "./CaptionsTable";
 
 interface CaptionRow {
   id: string;
@@ -50,66 +50,7 @@ export default async function CaptionsPage() {
         </div>
       )}
 
-      <DataTable
-        data={captions}
-        columns={[
-          {
-            key: "content",
-            label: "Content",
-            render: (v) => (
-              <span className="max-w-md block truncate">{v != null ? String(v) : "—"}</span>
-            ),
-          },
-          {
-            key: "profiles",
-            label: "Author",
-            sortable: false,
-            render: (_, row) => {
-              const r = row as CaptionRow;
-              return r.profiles?.email || r.profiles?.first_name || "—";
-            },
-          },
-          {
-            key: "humor_flavors",
-            label: "Flavor",
-            sortable: false,
-            render: (_, row) => {
-              const r = row as CaptionRow;
-              return r.humor_flavors?.slug || "—";
-            },
-          },
-          {
-            key: "like_count",
-            label: "Likes",
-            render: (v) => v != null ? String(v) : "0",
-          },
-          {
-            key: "is_public",
-            label: "Flags",
-            sortable: false,
-            render: (_, row) => {
-              const c = row as CaptionRow;
-              const flags = [];
-              if (c.is_public) flags.push(<span key="p" className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Public</span>);
-              if (c.is_featured) flags.push(<span key="f" className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded">Featured</span>);
-              return <div className="flex gap-1">{flags.length > 0 ? flags : <span className="text-gray-400">—</span>}</div>;
-            },
-          },
-          {
-            key: "created_datetime_utc",
-            label: "Created",
-            render: (v) => {
-              if (!v) return "—";
-              try {
-                return new Date(String(v)).toLocaleDateString();
-              } catch {
-                return "—";
-              }
-            },
-          },
-        ]}
-        searchKeys={["content"]}
-      />
+      <CaptionsTable initialData={captions} />
     </div>
   );
 }

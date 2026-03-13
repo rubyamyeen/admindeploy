@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import DataTable from "@/components/DataTable";
+import LlmPromptChainsTable from "./LlmPromptChainsTable";
 
 interface LlmPromptChainRow {
   id: number;
@@ -45,22 +45,7 @@ export default async function LlmPromptChainsPage() {
         </div>
       )}
 
-      <DataTable
-        data={data}
-        columns={[
-          { key: "id", label: "ID", render: (v) => v != null ? String(v) : "—" },
-          { key: "caption_request_id", label: "Caption Request ID", render: (v) => v != null ? String(v) : "—" },
-          { key: "created_datetime_utc", label: "Created", render: (v) => {
-            if (!v) return "—";
-            try {
-              return new Date(String(v)).toLocaleString();
-            } catch {
-              return "—";
-            }
-          }},
-        ]}
-        searchKeys={[]}
-      />
+      <LlmPromptChainsTable initialData={data} />
     </div>
   );
 }

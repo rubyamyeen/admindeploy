@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import DataTable from "@/components/DataTable";
+import LlmResponsesTable from "./LlmResponsesTable";
 
 interface LlmModelResponseRow {
   id: string;
@@ -48,35 +48,7 @@ export default async function LlmResponsesPage() {
         </div>
       )}
 
-      <DataTable
-        data={data}
-        columns={[
-          { key: "id", label: "ID", render: (v) => (
-            <span className="font-mono text-xs">{v != null ? String(v).slice(0, 8) + "..." : "—"}</span>
-          )},
-          { key: "llm_models", label: "Model", sortable: false, render: (_, row) => {
-            const r = row as LlmModelResponseRow;
-            return r.llm_models?.name ?? "—";
-          }},
-          { key: "humor_flavors", label: "Flavor", sortable: false, render: (_, row) => {
-            const r = row as LlmModelResponseRow;
-            return r.humor_flavors?.slug ?? "—";
-          }},
-          { key: "processing_time_seconds", label: "Time (s)", render: (v) => v != null ? String(v) : "—" },
-          { key: "llm_model_response", label: "Response", render: (v) => (
-            <span className="max-w-xs truncate block text-xs">{v != null ? String(v).slice(0, 100) : "—"}</span>
-          )},
-          { key: "created_datetime_utc", label: "Created", render: (v) => {
-            if (!v) return "—";
-            try {
-              return new Date(String(v)).toLocaleString();
-            } catch {
-              return "—";
-            }
-          }},
-        ]}
-        searchKeys={[]}
-      />
+      <LlmResponsesTable initialData={data} />
     </div>
   );
 }
