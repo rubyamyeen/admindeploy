@@ -11,14 +11,14 @@ async function getData(): Promise<{ data: WhitelistedEmailRow[]; error: string |
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
-      .from("whitelisted_email_addresses")
+      .from("whitelist_email_addresses")
       .select("id, created_datetime_utc, email")
       .order("email", { ascending: true });
 
     if (error) {
       console.error("[WhitelistedEmails] Supabase error:", error);
-      console.error("[WhitelistedEmails] Table: whitelisted_email_addresses");
-      return { data: [], error: `Table: whitelisted_email_addresses - ${error.message}` };
+      console.error("[WhitelistedEmails] Table: whitelist_email_addresses");
+      return { data: [], error: `Table: whitelist_email_addresses - ${error.message}` };
     }
 
     return { data: (data ?? []) as WhitelistedEmailRow[], error: null };

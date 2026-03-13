@@ -19,12 +19,8 @@ export async function requireSuperAdmin(): Promise<AuthResult> {
 
     const { data: authData, error: authError } = await supabase.auth.getUser();
 
-    if (authError) {
-      console.error("[Auth] getUser error:", authError);
-      return { user: null, profile: null, error: authError.message };
-    }
-
-    if (!authData.user) {
+    // No session or auth error means user needs to log in - not a real error
+    if (authError || !authData.user) {
       redirect("/login");
     }
 

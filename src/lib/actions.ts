@@ -213,7 +213,7 @@ export async function createWhitelistedEmail(data: {
   email: string;
 }): Promise<ActionResult> {
   const { supabase } = await requireAuth();
-  const { data: result, error } = await supabase.from("whitelisted_email_addresses").insert(data).select().single();
+  const { data: result, error } = await supabase.from("whitelist_email_addresses").insert(data).select().single();
   if (error) return { error: error.message };
   revalidatePath("/whitelisted-emails");
   return { data: result };
@@ -224,7 +224,7 @@ export async function updateWhitelistedEmail(id: number, data: {
 }): Promise<ActionResult> {
   const { supabase } = await requireAuth();
   const { data: result, error } = await supabase
-    .from("whitelisted_email_addresses")
+    .from("whitelist_email_addresses")
     .update(data)
     .eq("id", id)
     .select()
@@ -236,7 +236,7 @@ export async function updateWhitelistedEmail(id: number, data: {
 
 export async function deleteWhitelistedEmail(id: number): Promise<ActionResult> {
   const { supabase } = await requireAuth();
-  const { error } = await supabase.from("whitelisted_email_addresses").delete().eq("id", id);
+  const { error } = await supabase.from("whitelist_email_addresses").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/whitelisted-emails");
   return { data: { success: true } };
