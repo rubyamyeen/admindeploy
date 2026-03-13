@@ -10,25 +10,25 @@ export default function WhitelistedEmailsTable({ initialData }: { initialData: W
   const [items, setItems] = useState(initialData);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<WhitelistedEmailAddress | null>(null);
-  const [formData, setFormData] = useState({ id: 0, email: "" });
+  const [formData, setFormData] = useState({ id: 0, email_address: "" });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const router = useRouter();
 
-  const filtered = items.filter((i) => i.email.toLowerCase().includes(search.toLowerCase()));
+  const filtered = items.filter((i) => i.email_address.toLowerCase().includes(search.toLowerCase()));
 
   const openCreate = () => {
     setEditing(null);
-    setFormData({ id: 0, email: "" });
+    setFormData({ id: 0, email_address: "" });
     setError(null);
     setModalOpen(true);
   };
 
   const openEdit = (item: WhitelistedEmailAddress) => {
     setEditing(item);
-    setFormData({ id: item.id, email: item.email });
+    setFormData({ id: item.id, email_address: item.email_address });
     setError(null);
     setModalOpen(true);
   };
@@ -38,15 +38,15 @@ export default function WhitelistedEmailsTable({ initialData }: { initialData: W
     setError(null);
 
     const result = editing
-      ? await updateWhitelistedEmail(editing.id, { email: formData.email })
+      ? await updateWhitelistedEmail(editing.id, { email_address: formData.email_address })
       : await createWhitelistedEmail(formData);
 
     if (result.error) { setError(result.error); setSaving(false); return; }
 
     if (editing) {
-      setItems(items.map((i) => (i.id === editing.id ? { ...i, email: formData.email } : i)));
+      setItems(items.map((i) => (i.id === editing.id ? { ...i, email_address: formData.email_address } : i)));
     } else {
-      setItems([...items, result.data as WhitelistedEmailAddress].sort((a, b) => a.email.localeCompare(b.email)));
+      setItems([...items, result.data as WhitelistedEmailAddress].sort((a, b) => a.email_address.localeCompare(b.email_address)));
     }
 
     setModalOpen(false);
@@ -85,7 +85,7 @@ export default function WhitelistedEmailsTable({ initialData }: { initialData: W
               filtered.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-sm text-gray-900">{item.id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{item.email}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{item.email_address}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{new Date(item.created_datetime_utc).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-right">
                     {deleteId === item.id ? (
@@ -118,7 +118,7 @@ export default function WhitelistedEmailsTable({ initialData }: { initialData: W
           )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-            <input type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" placeholder="user@example.com" />
+            <input type="email" required value={formData.email_address} onChange={(e) => setFormData({ ...formData, email_address: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" placeholder="user@example.com" />
           </div>
         </div>
         <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">

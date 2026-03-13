@@ -210,7 +210,7 @@ export async function deleteAllowedDomain(id: number): Promise<ActionResult> {
 // Whitelisted Email Addresses CRUD
 export async function createWhitelistedEmail(data: {
   id: number;
-  email: string;
+  email_address: string;
 }): Promise<ActionResult> {
   const { supabase } = await requireAuth();
   const { data: result, error } = await supabase.from("whitelist_email_addresses").insert(data).select().single();
@@ -220,7 +220,7 @@ export async function createWhitelistedEmail(data: {
 }
 
 export async function updateWhitelistedEmail(id: number, data: {
-  email: string;
+  email_address: string;
 }): Promise<ActionResult> {
   const { supabase } = await requireAuth();
   const { data: result, error } = await supabase

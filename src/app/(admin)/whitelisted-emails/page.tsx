@@ -4,7 +4,7 @@ import WhitelistedEmailsTable from "./WhitelistedEmailsTable";
 interface WhitelistedEmailRow {
   id: number;
   created_datetime_utc: string;
-  email: string;
+  email_address: string;
 }
 
 async function getData(): Promise<{ data: WhitelistedEmailRow[]; error: string | null }> {
@@ -12,8 +12,8 @@ async function getData(): Promise<{ data: WhitelistedEmailRow[]; error: string |
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("whitelist_email_addresses")
-      .select("id, created_datetime_utc, email")
-      .order("email", { ascending: true });
+      .select("id, created_datetime_utc, email_address")
+      .order("email_address", { ascending: true });
 
     if (error) {
       console.error("[WhitelistedEmails] Supabase error:", error);

@@ -142,5 +142,5 @@ export interface AllowedSignupDomain {
 export interface WhitelistedEmailAddress {
   id: number;
   created_datetime_utc: string;
-  email: string;
+  email_address: string;
 }
