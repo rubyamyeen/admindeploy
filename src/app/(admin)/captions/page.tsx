@@ -1,20 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
+import DataTable from "@/components/DataTable";
 import type { Caption, Profile } from "@/types/database";
 
 async function getCaptions() {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("captions")
-    .select("*, profiles(email, first_name, last_name)")
-    .order("created_datetime_utc", { ascending: false });
-
-  if (error) {
-    console.error("Error fetching captions:", error);
-    return [];
-  }
-
-  return data as (Caption & {
+    .select("*, profiles(email, first_name, last_name), humor_flavors(slug)")
+    .order("created_datetime_utc", { ascending: false })
+    .limit(500);
+  return (data ?? []) as (Caption & {
     profiles: Pick<Profile, "email" | "first_name" | "last_name"> | null;
+    humor_flavors: { slug: string } | null;
   })[];
 }
 
@@ -25,92 +22,59 @@ export default async function CaptionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Captions</h1>
-        <span className="text-sm text-gray-500">
-          {captions.length} total captions
-        </span>
+        <span className="text-sm text-gray-500">{captions.length} shown (max 500)</span>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Content
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Author
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Likes
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Flags
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {captions.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-8 text-center text-gray-500"
-                  >
-                    No captions found
-                  </td>
-                </tr>
-              ) : (
-                captions.map((caption) => (
-                  <tr key={caption.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-md">
-                        {caption.content || "No content"}
-                      </div>
-                      <div className="text-xs text-gray-500 font-mono mt-1">
-                        ID: {caption.id.slice(0, 8)}...
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {caption.profiles?.email ||
-                        (caption.profiles?.first_name &&
-                          `${caption.profiles.first_name} ${caption.profiles.last_name || ""}`.trim()) ||
-                        "Unknown"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900">
-                        {caption.like_count}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex gap-1 flex-wrap">
-                        {caption.is_public && (
-                          <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">
-                            Public
-                          </span>
-                        )}
-                        {caption.is_featured && (
-                          <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded">
-                            Featured
-                          </span>
-                        )}
-                        {!caption.is_public && !caption.is_featured && (
-                          <span className="text-xs text-gray-400">None</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(caption.created_datetime_utc).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable
+        data={captions}
+        columns={[
+          {
+            key: "content",
+            label: "Content",
+            render: (v) => (
+              <span className="max-w-md block truncate">{String(v ?? "—")}</span>
+            ),
+          },
+          {
+            key: "profiles.email",
+            label: "Author",
+            render: (_, row) => {
+              const r = row as { profiles?: { email?: string; first_name?: string } | null };
+              return r.profiles?.email || r.profiles?.first_name || "—";
+            },
+          },
+          {
+            key: "humor_flavors.slug",
+            label: "Flavor",
+            render: (_, row) => {
+              const r = row as { humor_flavors?: { slug: string } | null };
+              return r.humor_flavors?.slug || "—";
+            },
+          },
+          {
+            key: "like_count",
+            label: "Likes",
+          },
+          {
+            key: "is_public",
+            label: "Flags",
+            sortable: false,
+            render: (_, row) => {
+              const c = row as Caption;
+              const flags = [];
+              if (c.is_public) flags.push(<span key="p" className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Public</span>);
+              if (c.is_featured) flags.push(<span key="f" className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded">Featured</span>);
+              return <div className="flex gap-1">{flags.length > 0 ? flags : <span className="text-gray-400">—</span>}</div>;
+            },
+          },
+          {
+            key: "created_datetime_utc",
+            label: "Created",
+            render: (v) => new Date(String(v)).toLocaleDateString(),
+          },
+        ]}
+        searchKeys={["content"]}
+      />
     </div>
   );
 }
