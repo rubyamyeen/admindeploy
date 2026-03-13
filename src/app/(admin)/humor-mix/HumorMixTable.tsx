@@ -3,26 +3,36 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal";
-import type { HumorFlavorMix, HumorFlavor } from "@/types/database";
 import { updateHumorFlavorMix } from "@/lib/actions";
 
-type MixWithFlavor = HumorFlavorMix & { humor_flavors: { slug: string } | null };
+interface HumorFlavorMixRow {
+  id: number;
+  created_datetime_utc: string;
+  humor_flavor_id: number;
+  caption_count: number;
+  humor_flavors: { slug: string } | null;
+}
+
+interface HumorFlavorOption {
+  id: number;
+  slug: string;
+}
 
 export default function HumorMixTable({
   data,
   flavors,
 }: {
-  data: MixWithFlavor[];
-  flavors: Pick<HumorFlavor, "id" | "slug">[];
+  data: HumorFlavorMixRow[];
+  flavors: HumorFlavorOption[];
 }) {
   const [items, setItems] = useState(data);
-  const [editing, setEditing] = useState<MixWithFlavor | null>(null);
+  const [editing, setEditing] = useState<HumorFlavorMixRow | null>(null);
   const [formData, setFormData] = useState({ humor_flavor_id: 0, caption_count: 0 });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const router = useRouter();
 
-  const openEdit = (item: MixWithFlavor) => {
+  const openEdit = (item: HumorFlavorMixRow) => {
     setEditing(item);
     setFormData({
       humor_flavor_id: item.humor_flavor_id,
@@ -43,14 +53,14 @@ export default function HumorMixTable({
       return;
     }
 
+    const matchedFlavor = flavors.find((f) => f.id === formData.humor_flavor_id);
     setItems(items.map((i) =>
       i.id === editing.id
         ? {
             ...i,
-            ...formData,
-            humor_flavors: flavors.find((f) => f.id === formData.humor_flavor_id)
-              ? { slug: flavors.find((f) => f.id === formData.humor_flavor_id)!.slug }
-              : null,
+            humor_flavor_id: formData.humor_flavor_id,
+            caption_count: formData.caption_count,
+            humor_flavors: matchedFlavor ? { slug: matchedFlavor.slug } : null,
           }
         : i
     ));
@@ -73,24 +83,30 @@ export default function HumorMixTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {items.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm text-gray-900">{item.id}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{item.humor_flavors?.slug ?? "—"}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{item.caption_count}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">
-                  {new Date(item.created_datetime_utc).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => openEdit(item)}
-                    className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
-                  >
-                    Edit
-                  </button>
-                </td>
+            {items.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">No data found</td>
               </tr>
-            ))}
+            ) : (
+              items.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 text-sm text-gray-900">{item.id}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{item.humor_flavors?.slug ?? "—"}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{item.caption_count}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {item.created_datetime_utc ? new Date(item.created_datetime_utc).toLocaleDateString() : "—"}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      onClick={() => openEdit(item)}
+                      className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -109,6 +125,7 @@ export default function HumorMixTable({
               onChange={(e) => setFormData({ ...formData, humor_flavor_id: Number(e.target.value) })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
             >
+              <option value={0}>Select a flavor...</option>
               {flavors.map((f) => (
                 <option key={f.id} value={f.id}>{f.slug}</option>
               ))}

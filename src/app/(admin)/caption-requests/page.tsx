@@ -1,19 +1,37 @@
 import { createClient } from "@/lib/supabase/server";
 import DataTable from "@/components/DataTable";
-import type { CaptionRequest } from "@/types/database";
 
-async function getData() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("caption_requests")
-    .select("*, profiles(email)")
-    .order("created_datetime_utc", { ascending: false })
-    .limit(500);
-  return (data ?? []) as (CaptionRequest & { profiles: { email: string } | null })[];
+interface CaptionRequestRow {
+  id: number;
+  created_datetime_utc: string;
+  profile_id: string;
+  image_id: string;
+  profiles: { email: string | null } | null;
+}
+
+async function getData(): Promise<{ data: CaptionRequestRow[]; error: string | null }> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("caption_requests")
+      .select("id, created_datetime_utc, profile_id, image_id, profiles(email)")
+      .order("created_datetime_utc", { ascending: false })
+      .limit(500);
+
+    if (error) {
+      console.error("[CaptionRequests] Supabase query error:", error);
+      return { data: [], error: error.message };
+    }
+
+    return { data: (data ?? []) as unknown as CaptionRequestRow[], error: null };
+  } catch (err) {
+    console.error("[CaptionRequests] Unexpected error:", err);
+    return { data: [], error: err instanceof Error ? err.message : "Unknown error" };
+  }
 }
 
 export default async function CaptionRequestsPage() {
-  const data = await getData();
+  const { data, error } = await getData();
 
   return (
     <div className="space-y-6">
@@ -22,19 +40,32 @@ export default async function CaptionRequestsPage() {
         <span className="text-sm text-gray-500">{data.length} shown (max 500)</span>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-700 font-medium">Failed to load caption requests</p>
+          <p className="text-red-600 text-sm mt-1">{error}</p>
+        </div>
+      )}
+
       <DataTable
         data={data}
         columns={[
-          { key: "id", label: "ID" },
-          { key: "profiles.email", label: "User", render: (_, row) =>
-            (row as { profiles?: { email: string } | null }).profiles?.email ?? "—"
-          },
+          { key: "id", label: "ID", render: (v) => v != null ? String(v) : "—" },
+          { key: "profiles", label: "User", sortable: false, render: (_, row) => {
+            const r = row as CaptionRequestRow;
+            return r.profiles?.email ?? "—";
+          }},
           { key: "image_id", label: "Image ID", render: (v) => (
-            <span className="font-mono text-xs">{String(v).slice(0, 8)}...</span>
+            <span className="font-mono text-xs">{v != null ? String(v).slice(0, 8) + "..." : "—"}</span>
           )},
-          { key: "created_datetime_utc", label: "Created", render: (v) =>
-            new Date(String(v)).toLocaleString()
-          },
+          { key: "created_datetime_utc", label: "Created", render: (v) => {
+            if (!v) return "—";
+            try {
+              return new Date(String(v)).toLocaleString();
+            } catch {
+              return "—";
+            }
+          }},
         ]}
         searchKeys={[]}
       />

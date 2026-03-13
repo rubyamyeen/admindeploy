@@ -1,18 +1,35 @@
 import { createClient } from "@/lib/supabase/server";
 import DataTable from "@/components/DataTable";
-import type { HumorFlavor } from "@/types/database";
 
-async function getData() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("humor_flavors")
-    .select("*")
-    .order("id", { ascending: true });
-  return (data ?? []) as HumorFlavor[];
+interface HumorFlavorRow {
+  id: number;
+  slug: string;
+  description: string | null;
+  created_datetime_utc: string;
+}
+
+async function getData(): Promise<{ data: HumorFlavorRow[]; error: string | null }> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("humor_flavors")
+      .select("id, slug, description, created_datetime_utc")
+      .order("id", { ascending: true });
+
+    if (error) {
+      console.error("[HumorFlavors] Supabase query error:", error);
+      return { data: [], error: error.message };
+    }
+
+    return { data: (data ?? []) as HumorFlavorRow[], error: null };
+  } catch (err) {
+    console.error("[HumorFlavors] Unexpected error:", err);
+    return { data: [], error: err instanceof Error ? err.message : "Unknown error" };
+  }
 }
 
 export default async function HumorFlavorsPage() {
-  const data = await getData();
+  const { data, error } = await getData();
 
   return (
     <div className="space-y-6">
@@ -21,17 +38,29 @@ export default async function HumorFlavorsPage() {
         <span className="text-sm text-gray-500">{data.length} total</span>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-700 font-medium">Failed to load humor flavors</p>
+          <p className="text-red-600 text-sm mt-1">{error}</p>
+        </div>
+      )}
+
       <DataTable
         data={data}
         columns={[
-          { key: "id", label: "ID" },
-          { key: "slug", label: "Slug" },
+          { key: "id", label: "ID", render: (v) => v != null ? String(v) : "—" },
+          { key: "slug", label: "Slug", render: (v) => v != null ? String(v) : "—" },
           { key: "description", label: "Description", render: (v) => (
-            <span className="max-w-md truncate block">{String(v ?? "—")}</span>
+            <span className="max-w-md truncate block">{v != null ? String(v) : "—"}</span>
           )},
-          { key: "created_datetime_utc", label: "Created", render: (v) =>
-            new Date(String(v)).toLocaleDateString()
-          },
+          { key: "created_datetime_utc", label: "Created", render: (v) => {
+            if (!v) return "—";
+            try {
+              return new Date(String(v)).toLocaleDateString();
+            } catch {
+              return "—";
+            }
+          }},
         ]}
         searchKeys={["slug", "description"]}
       />
