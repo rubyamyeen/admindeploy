@@ -7,7 +7,8 @@ interface CaptionRequestRow {
   created_datetime_utc: string;
   profile_id: string;
   image_id: string;
-  profiles: { email: string | null } | null;
+  created_by_user_id: string | null;
+  modified_by_user_id: string | null;
 }
 
 interface CaptionRequestsTableProps {
@@ -20,10 +21,9 @@ export default function CaptionRequestsTable({ initialData }: CaptionRequestsTab
       data={initialData}
       columns={[
         { key: "id", label: "ID", render: (v) => v != null ? String(v) : "—" },
-        { key: "profiles", label: "User", sortable: false, render: (_, row) => {
-          const r = row as CaptionRequestRow;
-          return r.profiles?.email ?? "—";
-        }},
+        { key: "profile_id", label: "Profile ID", sortable: false, render: (v) => (
+          <span className="font-mono text-xs">{v != null ? String(v).slice(0, 8) + "..." : "—"}</span>
+        )},
         { key: "image_id", label: "Image ID", render: (v) => (
           <span className="font-mono text-xs">{v != null ? String(v).slice(0, 8) + "..." : "—"}</span>
         )},

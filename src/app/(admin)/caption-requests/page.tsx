@@ -6,7 +6,8 @@ interface CaptionRequestRow {
   created_datetime_utc: string;
   profile_id: string;
   image_id: string;
-  profiles: { email: string | null } | null;
+  created_by_user_id: string | null;
+  modified_by_user_id: string | null;
 }
 
 async function getData(): Promise<{ data: CaptionRequestRow[]; error: string | null }> {
@@ -14,7 +15,7 @@ async function getData(): Promise<{ data: CaptionRequestRow[]; error: string | n
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("caption_requests")
-      .select("id, created_datetime_utc, profile_id, image_id, profiles(email)")
+      .select("id, created_datetime_utc, profile_id, image_id, created_by_user_id, modified_by_user_id")
       .order("created_datetime_utc", { ascending: false })
       .limit(500);
 
@@ -23,7 +24,7 @@ async function getData(): Promise<{ data: CaptionRequestRow[]; error: string | n
       return { data: [], error: error.message };
     }
 
-    return { data: (data ?? []) as unknown as CaptionRequestRow[], error: null };
+    return { data: (data ?? []) as CaptionRequestRow[], error: null };
   } catch (err) {
     console.error("[CaptionRequests] Unexpected error:", err);
     return { data: [], error: err instanceof Error ? err.message : "Unknown error" };

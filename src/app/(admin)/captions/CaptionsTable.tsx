@@ -9,8 +9,8 @@ interface CaptionRow {
   is_public: boolean;
   is_featured: boolean;
   like_count: number;
-  profiles: { email: string | null; first_name: string | null } | null;
-  humor_flavors: { slug: string } | null;
+  profile_id: string | null;
+  humor_flavor_id: number | null;
 }
 
 interface CaptionsTableProps {
@@ -30,22 +30,17 @@ export default function CaptionsTable({ initialData }: CaptionsTableProps) {
           ),
         },
         {
-          key: "profiles",
-          label: "Author",
+          key: "profile_id",
+          label: "Profile ID",
           sortable: false,
-          render: (_, row) => {
-            const r = row as CaptionRow;
-            return r.profiles?.email || r.profiles?.first_name || "—";
-          },
+          render: (v) => (
+            <span className="font-mono text-xs">{v != null ? String(v).slice(0, 8) + "..." : "—"}</span>
+          ),
         },
         {
-          key: "humor_flavors",
-          label: "Flavor",
-          sortable: false,
-          render: (_, row) => {
-            const r = row as CaptionRow;
-            return r.humor_flavors?.slug || "—";
-          },
+          key: "humor_flavor_id",
+          label: "Flavor ID",
+          render: (v) => v != null ? String(v) : "—",
         },
         {
           key: "like_count",

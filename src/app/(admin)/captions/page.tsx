@@ -8,8 +8,8 @@ interface CaptionRow {
   is_public: boolean;
   is_featured: boolean;
   like_count: number;
-  profiles: { email: string | null; first_name: string | null } | null;
-  humor_flavors: { slug: string } | null;
+  profile_id: string | null;
+  humor_flavor_id: number | null;
 }
 
 async function getCaptions(): Promise<{ data: CaptionRow[]; error: string | null }> {
@@ -17,7 +17,7 @@ async function getCaptions(): Promise<{ data: CaptionRow[]; error: string | null
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("captions")
-      .select("id, created_datetime_utc, content, is_public, is_featured, like_count, profiles(email, first_name), humor_flavors(slug)")
+      .select("id, created_datetime_utc, content, is_public, is_featured, like_count, profile_id, humor_flavor_id")
       .order("created_datetime_utc", { ascending: false })
       .limit(500);
 
@@ -26,7 +26,7 @@ async function getCaptions(): Promise<{ data: CaptionRow[]; error: string | null
       return { data: [], error: error.message };
     }
 
-    return { data: (data ?? []) as unknown as CaptionRow[], error: null };
+    return { data: (data ?? []) as CaptionRow[], error: null };
   } catch (err) {
     console.error("[Captions] Unexpected error:", err);
     return { data: [], error: err instanceof Error ? err.message : "Unknown error" };
