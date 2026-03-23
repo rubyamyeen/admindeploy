@@ -3,21 +3,33 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal";
-import type { LlmModel, LlmProvider } from "@/types/database";
 import { createLlmModel, updateLlmModel, deleteLlmModel } from "@/lib/actions";
 
-type ModelWithProvider = LlmModel & { llm_providers: { name: string } | null };
+interface LlmModelRow {
+  id: number;
+  created_datetime_utc: string;
+  name: string;
+  llm_provider_id: number;
+  provider_model_id: string;
+  is_temperature_supported: boolean;
+  llm_providers: { name: string } | null;
+}
+
+interface LlmProviderOption {
+  id: number;
+  name: string;
+}
 
 export default function LlmModelsTable({
   initialData,
   providers,
 }: {
-  initialData: ModelWithProvider[];
-  providers: Pick<LlmProvider, "id" | "name">[];
+  initialData: LlmModelRow[];
+  providers: LlmProviderOption[];
 }) {
   const [items, setItems] = useState(initialData);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<ModelWithProvider | null>(null);
+  const [editing, setEditing] = useState<LlmModelRow | null>(null);
   const [formData, setFormData] = useState({
     id: 0,
     name: "",
@@ -37,7 +49,7 @@ export default function LlmModelsTable({
     setModalOpen(true);
   };
 
-  const openEdit = (item: ModelWithProvider) => {
+  const openEdit = (item: LlmModelRow) => {
     setEditing(item);
     setFormData({
       id: item.id,
@@ -69,7 +81,7 @@ export default function LlmModelsTable({
     if (editing) {
       setItems(items.map((i) => i.id === editing.id ? { ...i, ...formData, llm_providers: provider ? { name: provider.name } : null } : i));
     } else {
-      setItems([...items, { ...(result.data as LlmModel), llm_providers: provider ? { name: provider.name } : null }].sort((a, b) => a.id - b.id));
+      setItems([...items, { ...(result.data as LlmModelRow), llm_providers: provider ? { name: provider.name } : null }].sort((a, b) => a.id - b.id));
     }
 
     setModalOpen(false);

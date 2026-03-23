@@ -31,6 +31,8 @@ export async function createImage(formData: ImageFormData) {
       additional_context: formData.additional_context || null,
       image_description: formData.image_description || null,
       profile_id: user.id,
+      created_by_user_id: user.id,
+      modified_by_user_id: user.id,
     })
     .select()
     .single();
@@ -62,7 +64,7 @@ export async function updateImage(id: string, formData: ImageFormData) {
       is_common_use: formData.is_common_use,
       additional_context: formData.additional_context || null,
       image_description: formData.image_description || null,
-      modified_datetime_utc: new Date().toISOString(),
+      modified_by_user_id: user.id,
     })
     .eq("id", id)
     .select()

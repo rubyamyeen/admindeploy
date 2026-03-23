@@ -3,13 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal";
-import type { WhitelistedEmailAddress } from "@/types/database";
 import { createWhitelistedEmail, updateWhitelistedEmail, deleteWhitelistedEmail } from "@/lib/actions";
 
-export default function WhitelistedEmailsTable({ initialData }: { initialData: WhitelistedEmailAddress[] }) {
+interface WhitelistedEmailRow {
+  id: number;
+  created_datetime_utc: string;
+  email_address: string;
+}
+
+export default function WhitelistedEmailsTable({ initialData }: { initialData: WhitelistedEmailRow[] }) {
   const [items, setItems] = useState(initialData);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<WhitelistedEmailAddress | null>(null);
+  const [editing, setEditing] = useState<WhitelistedEmailRow | null>(null);
   const [formData, setFormData] = useState({ id: 0, email_address: "" });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -26,7 +31,7 @@ export default function WhitelistedEmailsTable({ initialData }: { initialData: W
     setModalOpen(true);
   };
 
-  const openEdit = (item: WhitelistedEmailAddress) => {
+  const openEdit = (item: WhitelistedEmailRow) => {
     setEditing(item);
     setFormData({ id: item.id, email_address: item.email_address });
     setError(null);
@@ -46,7 +51,7 @@ export default function WhitelistedEmailsTable({ initialData }: { initialData: W
     if (editing) {
       setItems(items.map((i) => (i.id === editing.id ? { ...i, email_address: formData.email_address } : i)));
     } else {
-      setItems([...items, result.data as WhitelistedEmailAddress].sort((a, b) => a.email_address.localeCompare(b.email_address)));
+      setItems([...items, result.data as WhitelistedEmailRow].sort((a, b) => a.email_address.localeCompare(b.email_address)));
     }
 
     setModalOpen(false);

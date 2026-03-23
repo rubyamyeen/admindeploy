@@ -3,13 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal";
-import type { LlmProvider } from "@/types/database";
 import { createLlmProvider, updateLlmProvider, deleteLlmProvider } from "@/lib/actions";
 
-export default function LlmProvidersTable({ initialData }: { initialData: LlmProvider[] }) {
+interface LlmProviderRow {
+  id: number;
+  created_datetime_utc: string;
+  name: string;
+}
+
+export default function LlmProvidersTable({ initialData }: { initialData: LlmProviderRow[] }) {
   const [items, setItems] = useState(initialData);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<LlmProvider | null>(null);
+  const [editing, setEditing] = useState<LlmProviderRow | null>(null);
   const [formData, setFormData] = useState({ id: 0, name: "" });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -23,7 +28,7 @@ export default function LlmProvidersTable({ initialData }: { initialData: LlmPro
     setModalOpen(true);
   };
 
-  const openEdit = (item: LlmProvider) => {
+  const openEdit = (item: LlmProviderRow) => {
     setEditing(item);
     setFormData({ id: item.id, name: item.name });
     setError(null);
@@ -47,7 +52,7 @@ export default function LlmProvidersTable({ initialData }: { initialData: LlmPro
     if (editing) {
       setItems(items.map((i) => (i.id === editing.id ? { ...i, name: formData.name } : i)));
     } else {
-      setItems([...items, result.data as LlmProvider].sort((a, b) => a.id - b.id));
+      setItems([...items, result.data as LlmProviderRow].sort((a, b) => a.id - b.id));
     }
 
     setModalOpen(false);

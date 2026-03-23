@@ -1,7 +1,13 @@
-export interface Profile {
+// Common audit fields present on all tables
+interface AuditFields {
+  created_datetime_utc: string;
+  modified_datetime_utc: string;
+  created_by_user_id: string;
+  modified_by_user_id: string;
+}
+
+export interface Profile extends AuditFields {
   id: string;
-  created_datetime_utc: string | null;
-  modified_datetime_utc: string | null;
   first_name: string | null;
   last_name: string | null;
   email: string | null;
@@ -10,10 +16,8 @@ export interface Profile {
   is_matrix_admin: boolean;
 }
 
-export interface Image {
+export interface Image extends AuditFields {
   id: string;
-  created_datetime_utc: string;
-  modified_datetime_utc: string | null;
   url: string | null;
   is_common_use: boolean;
   profile_id: string | null;
@@ -23,10 +27,8 @@ export interface Image {
   celebrity_recognition: string | null;
 }
 
-export interface Caption {
+export interface Caption extends AuditFields {
   id: string;
-  created_datetime_utc: string;
-  modified_datetime_utc: string | null;
   content: string | null;
   is_public: boolean;
   profile_id: string;
@@ -38,16 +40,14 @@ export interface Caption {
   llm_prompt_chain_id: number | null;
 }
 
-export interface HumorFlavor {
+export interface HumorFlavor extends AuditFields {
   id: number;
-  created_datetime_utc: string;
   description: string | null;
   slug: string;
 }
 
-export interface HumorFlavorStep {
+export interface HumorFlavorStep extends AuditFields {
   id: number;
-  created_datetime_utc: string;
   humor_flavor_id: number;
   llm_temperature: number | null;
   order_by: number;
@@ -60,29 +60,25 @@ export interface HumorFlavorStep {
   description: string | null;
 }
 
-export interface HumorFlavorMix {
+export interface HumorFlavorMix extends AuditFields {
   id: number;
-  created_datetime_utc: string;
   humor_flavor_id: number;
   caption_count: number;
 }
 
-export interface CaptionRequest {
+export interface CaptionRequest extends AuditFields {
   id: number;
-  created_datetime_utc: string;
   profile_id: string;
   image_id: string;
 }
 
-export interface LlmPromptChain {
+export interface LlmPromptChain extends AuditFields {
   id: number;
-  created_datetime_utc: string;
   caption_request_id: number;
 }
 
-export interface LlmModelResponse {
+export interface LlmModelResponse extends AuditFields {
   id: string;
-  created_datetime_utc: string;
   llm_model_response: string | null;
   processing_time_seconds: number;
   llm_model_id: number;
@@ -96,10 +92,8 @@ export interface LlmModelResponse {
   humor_flavor_step_id: number | null;
 }
 
-export interface Term {
+export interface Term extends AuditFields {
   id: number;
-  created_datetime_utc: string;
-  modified_datetime_utc: string | null;
   term: string;
   definition: string;
   example: string;
@@ -107,10 +101,8 @@ export interface Term {
   term_type_id: number | null;
 }
 
-export interface CaptionExample {
+export interface CaptionExample extends AuditFields {
   id: number;
-  created_datetime_utc: string;
-  modified_datetime_utc: string | null;
   image_description: string;
   caption: string;
   explanation: string;
@@ -118,29 +110,25 @@ export interface CaptionExample {
   image_id: string | null;
 }
 
-export interface LlmModel {
+export interface LlmModel extends AuditFields {
   id: number;
-  created_datetime_utc: string;
   name: string;
   llm_provider_id: number;
   provider_model_id: string;
   is_temperature_supported: boolean;
 }
 
-export interface LlmProvider {
+export interface LlmProvider extends AuditFields {
   id: number;
-  created_datetime_utc: string;
   name: string;
 }
 
-export interface AllowedSignupDomain {
+export interface AllowedSignupDomain extends AuditFields {
   id: number;
-  created_datetime_utc: string;
   apex_domain: string;
 }
 
-export interface WhitelistedEmailAddress {
+export interface WhitelistedEmailAddress extends AuditFields {
   id: number;
-  created_datetime_utc: string;
   email_address: string;
 }

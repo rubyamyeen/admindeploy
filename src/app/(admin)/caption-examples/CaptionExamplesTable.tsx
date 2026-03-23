@@ -3,8 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal";
-import type { CaptionExample } from "@/types/database";
 import { createCaptionExample, updateCaptionExample, deleteCaptionExample } from "@/lib/actions";
+
+interface CaptionExampleRow {
+  id: number;
+  created_datetime_utc: string;
+  image_description: string;
+  caption: string;
+  explanation: string;
+  priority: number;
+  image_id: string | null;
+}
 
 const emptyForm = {
   image_description: "",
@@ -14,10 +23,10 @@ const emptyForm = {
   image_id: null as string | null,
 };
 
-export default function CaptionExamplesTable({ initialData }: { initialData: CaptionExample[] }) {
+export default function CaptionExamplesTable({ initialData }: { initialData: CaptionExampleRow[] }) {
   const [items, setItems] = useState(initialData);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<CaptionExample | null>(null);
+  const [editing, setEditing] = useState<CaptionExampleRow | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -37,7 +46,7 @@ export default function CaptionExamplesTable({ initialData }: { initialData: Cap
     setModalOpen(true);
   };
 
-  const openEdit = (item: CaptionExample) => {
+  const openEdit = (item: CaptionExampleRow) => {
     setEditing(item);
     setFormData({
       image_description: item.image_description,
@@ -67,7 +76,7 @@ export default function CaptionExamplesTable({ initialData }: { initialData: Cap
     if (editing) {
       setItems(items.map((i) => (i.id === editing.id ? { ...i, ...formData } : i)));
     } else {
-      setItems([result.data as CaptionExample, ...items]);
+      setItems([result.data as CaptionExampleRow, ...items]);
     }
 
     setModalOpen(false);

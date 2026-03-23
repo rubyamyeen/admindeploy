@@ -1,11 +1,22 @@
 "use client";
 
 import { useState, useRef } from "react";
-import type { Image } from "@/types/database";
 import { useRouter } from "next/navigation";
 import { createImage, updateImage, deleteImage, type ImageFormData } from "./actions";
 import { uploadImage } from "@/lib/actions";
 import Modal from "@/components/Modal";
+
+interface ImageRow {
+  id: string;
+  created_datetime_utc: string;
+  url: string | null;
+  is_common_use: boolean;
+  profile_id: string | null;
+  additional_context: string | null;
+  is_public: boolean;
+  image_description: string | null;
+  celebrity_recognition: string | null;
+}
 
 const emptyForm: ImageFormData = {
   url: "",
@@ -15,11 +26,11 @@ const emptyForm: ImageFormData = {
   image_description: "",
 };
 
-export default function ImageTable({ initialImages }: { initialImages: Image[] }) {
+export default function ImageTable({ initialImages }: { initialImages: ImageRow[] }) {
   const [images, setImages] = useState(initialImages);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [editingImage, setEditingImage] = useState<Image | null>(null);
+  const [editingImage, setEditingImage] = useState<ImageRow | null>(null);
   const [formData, setFormData] = useState<ImageFormData>(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -52,7 +63,7 @@ export default function ImageTable({ initialImages }: { initialImages: Image[] }
     setIsUploadModalOpen(true);
   };
 
-  const openEditModal = (image: Image) => {
+  const openEditModal = (image: ImageRow) => {
     setEditingImage(image);
     setFormData({
       url: image.url || "",
@@ -81,11 +92,11 @@ export default function ImageTable({ initialImages }: { initialImages: Image[] }
       if (editingImage) {
         const result = await updateImage(editingImage.id, formData);
         if (result.error) { setErrorMessage(result.error); return; }
-        setImages(images.map((img) => img.id === editingImage.id ? (result.data as Image) : img));
+        setImages(images.map((img) => img.id === editingImage.id ? (result.data as ImageRow) : img));
       } else {
         const result = await createImage(formData);
         if (result.error) { setErrorMessage(result.error); return; }
-        setImages([result.data as Image, ...images]);
+        setImages([result.data as ImageRow, ...images]);
       }
       closeModal();
       router.refresh();
@@ -114,7 +125,7 @@ export default function ImageTable({ initialImages }: { initialImages: Image[] }
     try {
       const result = await uploadImage(formDataObj);
       if (result.error) { setErrorMessage(result.error); return; }
-      setImages([result.data as Image, ...images]);
+      setImages([result.data as ImageRow, ...images]);
       setIsUploadModalOpen(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
       router.refresh();

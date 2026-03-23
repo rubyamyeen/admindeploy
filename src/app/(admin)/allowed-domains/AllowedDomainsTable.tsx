@@ -3,13 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal";
-import type { AllowedSignupDomain } from "@/types/database";
 import { createAllowedDomain, updateAllowedDomain, deleteAllowedDomain } from "@/lib/actions";
 
-export default function AllowedDomainsTable({ initialData }: { initialData: AllowedSignupDomain[] }) {
+interface AllowedDomainRow {
+  id: number;
+  created_datetime_utc: string;
+  apex_domain: string;
+}
+
+export default function AllowedDomainsTable({ initialData }: { initialData: AllowedDomainRow[] }) {
   const [items, setItems] = useState(initialData);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<AllowedSignupDomain | null>(null);
+  const [editing, setEditing] = useState<AllowedDomainRow | null>(null);
   const [formData, setFormData] = useState({ id: 0, apex_domain: "" });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -26,7 +31,7 @@ export default function AllowedDomainsTable({ initialData }: { initialData: Allo
     setModalOpen(true);
   };
 
-  const openEdit = (item: AllowedSignupDomain) => {
+  const openEdit = (item: AllowedDomainRow) => {
     setEditing(item);
     setFormData({ id: item.id, apex_domain: item.apex_domain });
     setError(null);
@@ -46,7 +51,7 @@ export default function AllowedDomainsTable({ initialData }: { initialData: Allo
     if (editing) {
       setItems(items.map((i) => (i.id === editing.id ? { ...i, apex_domain: formData.apex_domain } : i)));
     } else {
-      setItems([...items, result.data as AllowedSignupDomain].sort((a, b) => a.apex_domain.localeCompare(b.apex_domain)));
+      setItems([...items, result.data as AllowedDomainRow].sort((a, b) => a.apex_domain.localeCompare(b.apex_domain)));
     }
 
     setModalOpen(false);

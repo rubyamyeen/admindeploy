@@ -9,7 +9,8 @@ async function requireAuth() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
-  return { supabase, user };
+  // user.id is the same as profiles.id (profiles.id = auth.uid())
+  return { supabase, userId: user.id };
 }
 
 // Terms CRUD
@@ -20,8 +21,12 @@ export async function createTerm(data: {
   priority: number;
   term_type_id: number | null;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
-  const { data: result, error } = await supabase.from("terms").insert(data).select().single();
+  const { supabase, userId } = await requireAuth();
+  const { data: result, error } = await supabase.from("terms").insert({
+    ...data,
+    created_by_user_id: userId,
+    modified_by_user_id: userId,
+  }).select().single();
   if (error) return { error: error.message };
   revalidatePath("/terms");
   return { data: result };
@@ -34,10 +39,13 @@ export async function updateTerm(id: number, data: {
   priority: number;
   term_type_id: number | null;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
+  const { supabase, userId } = await requireAuth();
   const { data: result, error } = await supabase
     .from("terms")
-    .update({ ...data, modified_datetime_utc: new Date().toISOString() })
+    .update({
+      ...data,
+      modified_by_user_id: userId,
+    })
     .eq("id", id)
     .select()
     .single();
@@ -62,8 +70,12 @@ export async function createCaptionExample(data: {
   priority: number;
   image_id: string | null;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
-  const { data: result, error } = await supabase.from("caption_examples").insert(data).select().single();
+  const { supabase, userId } = await requireAuth();
+  const { data: result, error } = await supabase.from("caption_examples").insert({
+    ...data,
+    created_by_user_id: userId,
+    modified_by_user_id: userId,
+  }).select().single();
   if (error) return { error: error.message };
   revalidatePath("/caption-examples");
   return { data: result };
@@ -76,10 +88,13 @@ export async function updateCaptionExample(id: number, data: {
   priority: number;
   image_id: string | null;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
+  const { supabase, userId } = await requireAuth();
   const { data: result, error } = await supabase
     .from("caption_examples")
-    .update({ ...data, modified_datetime_utc: new Date().toISOString() })
+    .update({
+      ...data,
+      modified_by_user_id: userId,
+    })
     .eq("id", id)
     .select()
     .single();
@@ -104,8 +119,12 @@ export async function createLlmModel(data: {
   provider_model_id: string;
   is_temperature_supported: boolean;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
-  const { data: result, error } = await supabase.from("llm_models").insert(data).select().single();
+  const { supabase, userId } = await requireAuth();
+  const { data: result, error } = await supabase.from("llm_models").insert({
+    ...data,
+    created_by_user_id: userId,
+    modified_by_user_id: userId,
+  }).select().single();
   if (error) return { error: error.message };
   revalidatePath("/llm-models");
   return { data: result };
@@ -117,10 +136,13 @@ export async function updateLlmModel(id: number, data: {
   provider_model_id: string;
   is_temperature_supported: boolean;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
+  const { supabase, userId } = await requireAuth();
   const { data: result, error } = await supabase
     .from("llm_models")
-    .update(data)
+    .update({
+      ...data,
+      modified_by_user_id: userId,
+    })
     .eq("id", id)
     .select()
     .single();
@@ -142,8 +164,12 @@ export async function createLlmProvider(data: {
   id: number;
   name: string;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
-  const { data: result, error } = await supabase.from("llm_providers").insert(data).select().single();
+  const { supabase, userId } = await requireAuth();
+  const { data: result, error } = await supabase.from("llm_providers").insert({
+    ...data,
+    created_by_user_id: userId,
+    modified_by_user_id: userId,
+  }).select().single();
   if (error) return { error: error.message };
   revalidatePath("/llm-providers");
   return { data: result };
@@ -152,10 +178,13 @@ export async function createLlmProvider(data: {
 export async function updateLlmProvider(id: number, data: {
   name: string;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
+  const { supabase, userId } = await requireAuth();
   const { data: result, error } = await supabase
     .from("llm_providers")
-    .update(data)
+    .update({
+      ...data,
+      modified_by_user_id: userId,
+    })
     .eq("id", id)
     .select()
     .single();
@@ -177,8 +206,12 @@ export async function createAllowedDomain(data: {
   id: number;
   apex_domain: string;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
-  const { data: result, error } = await supabase.from("allowed_signup_domains").insert(data).select().single();
+  const { supabase, userId } = await requireAuth();
+  const { data: result, error } = await supabase.from("allowed_signup_domains").insert({
+    ...data,
+    created_by_user_id: userId,
+    modified_by_user_id: userId,
+  }).select().single();
   if (error) return { error: error.message };
   revalidatePath("/allowed-domains");
   return { data: result };
@@ -187,10 +220,13 @@ export async function createAllowedDomain(data: {
 export async function updateAllowedDomain(id: number, data: {
   apex_domain: string;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
+  const { supabase, userId } = await requireAuth();
   const { data: result, error } = await supabase
     .from("allowed_signup_domains")
-    .update(data)
+    .update({
+      ...data,
+      modified_by_user_id: userId,
+    })
     .eq("id", id)
     .select()
     .single();
@@ -212,8 +248,12 @@ export async function createWhitelistedEmail(data: {
   id: number;
   email_address: string;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
-  const { data: result, error } = await supabase.from("whitelist_email_addresses").insert(data).select().single();
+  const { supabase, userId } = await requireAuth();
+  const { data: result, error } = await supabase.from("whitelist_email_addresses").insert({
+    ...data,
+    created_by_user_id: userId,
+    modified_by_user_id: userId,
+  }).select().single();
   if (error) return { error: error.message };
   revalidatePath("/whitelisted-emails");
   return { data: result };
@@ -222,10 +262,13 @@ export async function createWhitelistedEmail(data: {
 export async function updateWhitelistedEmail(id: number, data: {
   email_address: string;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
+  const { supabase, userId } = await requireAuth();
   const { data: result, error } = await supabase
     .from("whitelist_email_addresses")
-    .update(data)
+    .update({
+      ...data,
+      modified_by_user_id: userId,
+    })
     .eq("id", id)
     .select()
     .single();
@@ -247,10 +290,13 @@ export async function updateHumorFlavorMix(id: number, data: {
   humor_flavor_id: number;
   caption_count: number;
 }): Promise<ActionResult> {
-  const { supabase } = await requireAuth();
+  const { supabase, userId } = await requireAuth();
   const { data: result, error } = await supabase
     .from("humor_flavor_mix")
-    .update(data)
+    .update({
+      ...data,
+      modified_by_user_id: userId,
+    })
     .eq("id", id)
     .select()
     .single();
@@ -259,9 +305,9 @@ export async function updateHumorFlavorMix(id: number, data: {
   return { data: result };
 }
 
-// Image upload
+// Image upload (file upload to storage + database insert)
 export async function uploadImage(formData: FormData): Promise<ActionResult> {
-  const { supabase, user } = await requireAuth();
+  const { supabase, userId } = await requireAuth();
 
   const file = formData.get("file") as File;
   const is_public = formData.get("is_public") === "true";
@@ -272,7 +318,7 @@ export async function uploadImage(formData: FormData): Promise<ActionResult> {
   if (!file) return { error: "No file provided" };
 
   const fileExt = file.name.split(".").pop();
-  const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+  const fileName = `${userId}/${Date.now()}.${fileExt}`;
 
   const { error: uploadError } = await supabase.storage
     .from("images")
@@ -290,7 +336,9 @@ export async function uploadImage(formData: FormData): Promise<ActionResult> {
       is_common_use,
       image_description,
       additional_context,
-      profile_id: user.id,
+      profile_id: userId,
+      created_by_user_id: userId,
+      modified_by_user_id: userId,
     })
     .select()
     .single();

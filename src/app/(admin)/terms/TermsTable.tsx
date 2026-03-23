@@ -3,15 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal";
-import type { Term } from "@/types/database";
 import { createTerm, updateTerm, deleteTerm } from "@/lib/actions";
+
+interface TermRow {
+  id: number;
+  created_datetime_utc: string;
+  term: string;
+  definition: string;
+  example: string;
+  priority: number;
+  term_type_id: number | null;
+}
 
 const emptyForm = { term: "", definition: "", example: "", priority: 0, term_type_id: null as number | null };
 
-export default function TermsTable({ initialData }: { initialData: Term[] }) {
+export default function TermsTable({ initialData }: { initialData: TermRow[] }) {
   const [items, setItems] = useState(initialData);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<Term | null>(null);
+  const [editing, setEditing] = useState<TermRow | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -31,7 +40,7 @@ export default function TermsTable({ initialData }: { initialData: Term[] }) {
     setModalOpen(true);
   };
 
-  const openEdit = (item: Term) => {
+  const openEdit = (item: TermRow) => {
     setEditing(item);
     setFormData({
       term: item.term,
@@ -61,7 +70,7 @@ export default function TermsTable({ initialData }: { initialData: Term[] }) {
     if (editing) {
       setItems(items.map((i) => (i.id === editing.id ? { ...i, ...formData } : i)));
     } else {
-      setItems([result.data as Term, ...items]);
+      setItems([result.data as TermRow, ...items]);
     }
 
     setModalOpen(false);
