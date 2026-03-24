@@ -99,40 +99,44 @@ export default function LlmModelsTable({
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b flex justify-end">
-          <button onClick={openCreate} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">Add Model</button>
+      <div className="bg-[#1a2332] rounded-xl border border-slate-800 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-800 flex justify-end">
+          <button onClick={openCreate} className="px-4 py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm rounded-lg hover:from-violet-600 hover:to-purple-700 transition-all">Add Model</button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-[#151d2e]">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Provider</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Model ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Temp</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Provider</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Model ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Temp</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-slate-800">
               {items.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-900">{item.id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{item.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{item.llm_providers?.name ?? "—"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 font-mono">{item.provider_model_id}</td>
-                  <td className="px-6 py-4 text-sm">{item.is_temperature_supported ? <span className="text-green-600">Yes</span> : <span className="text-gray-400">No</span>}</td>
+                <tr key={item.id} className="hover:bg-slate-800/30 transition-colors">
+                  <td className="px-6 py-4 text-sm text-slate-300">{item.id}</td>
+                  <td className="px-6 py-4 text-sm text-slate-300">{item.name}</td>
+                  <td className="px-6 py-4 text-sm">
+                    <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 rounded text-xs">
+                      {item.llm_providers?.name ?? "—"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-400 font-mono">{item.provider_model_id}</td>
+                  <td className="px-6 py-4 text-sm">{item.is_temperature_supported ? <span className="text-emerald-400">Yes</span> : <span className="text-slate-500">No</span>}</td>
                   <td className="px-6 py-4 text-right">
                     {deleteId === item.id ? (
                       <div className="flex gap-2 justify-end">
-                        <button onClick={() => handleDelete(item.id)} className="text-xs px-2 py-1 bg-red-600 text-white rounded">Confirm</button>
-                        <button onClick={() => setDeleteId(null)} className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded">Cancel</button>
+                        <button onClick={() => handleDelete(item.id)} className="text-xs px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">Confirm</button>
+                        <button onClick={() => setDeleteId(null)} className="text-xs px-3 py-1.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors">Cancel</button>
                       </div>
                     ) : (
                       <div className="flex gap-2 justify-end">
-                        <button onClick={() => openEdit(item)} className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Edit</button>
-                        <button onClick={() => setDeleteId(item.id)} className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200">Delete</button>
+                        <button onClick={() => openEdit(item)} className="text-xs px-3 py-1.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors">Edit</button>
+                        <button onClick={() => setDeleteId(item.id)} className="text-xs px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors">Delete</button>
                       </div>
                     )}
                   </td>
@@ -144,36 +148,36 @@ export default function LlmModelsTable({
       </div>
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Edit Model" : "Add Model"}>
-        {error && <div className="px-6 py-3 bg-red-50 border-b border-red-200"><p className="text-sm text-red-700">{error}</p></div>}
+        {error && <div className="px-6 py-3 bg-red-500/10 border-b border-red-500/20"><p className="text-sm text-red-400">{error}</p></div>}
         <div className="px-6 py-4 space-y-4">
           {!editing && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">ID *</label>
-              <input type="number" required value={formData.id} onChange={(e) => setFormData({ ...formData, id: Number(e.target.value) })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" />
+              <label className="block text-sm font-medium text-slate-300 mb-1">ID *</label>
+              <input type="number" required value={formData.id} onChange={(e) => setFormData({ ...formData, id: Number(e.target.value) })} className="w-full px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white" />
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-            <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" />
+            <label className="block text-sm font-medium text-slate-300 mb-1">Name *</label>
+            <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Provider *</label>
-            <select value={formData.llm_provider_id} onChange={(e) => setFormData({ ...formData, llm_provider_id: Number(e.target.value) })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900">
+            <label className="block text-sm font-medium text-slate-300 mb-1">Provider *</label>
+            <select value={formData.llm_provider_id} onChange={(e) => setFormData({ ...formData, llm_provider_id: Number(e.target.value) })} className="w-full px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white">
               {providers.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Provider Model ID *</label>
-            <input type="text" required value={formData.provider_model_id} onChange={(e) => setFormData({ ...formData, provider_model_id: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" placeholder="e.g. gpt-4-turbo" />
+            <label className="block text-sm font-medium text-slate-300 mb-1">Provider Model ID *</label>
+            <input type="text" required value={formData.provider_model_id} onChange={(e) => setFormData({ ...formData, provider_model_id: e.target.value })} className="w-full px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white placeholder-slate-500" placeholder="e.g. gpt-4-turbo" />
           </div>
           <label className="flex items-center gap-2">
-            <input type="checkbox" checked={formData.is_temperature_supported} onChange={(e) => setFormData({ ...formData, is_temperature_supported: e.target.checked })} className="w-4 h-4 rounded border-gray-300 text-blue-600" />
-            <span className="text-sm text-gray-700">Temperature Supported</span>
+            <input type="checkbox" checked={formData.is_temperature_supported} onChange={(e) => setFormData({ ...formData, is_temperature_supported: e.target.checked })} className="w-4 h-4 rounded border-slate-600 bg-slate-800 text-cyan-500 focus:ring-cyan-500/50" />
+            <span className="text-sm text-slate-300">Temperature Supported</span>
           </label>
         </div>
-        <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
-          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-lg">Cancel</button>
-          <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{saving ? "Saving..." : editing ? "Update" : "Create"}</button>
+        <div className="px-6 py-4 border-t border-slate-800 flex justify-end gap-3">
+          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Cancel</button>
+          <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 transition-all">{saving ? "Saving..." : editing ? "Update" : "Create"}</button>
         </div>
       </Modal>
     </>

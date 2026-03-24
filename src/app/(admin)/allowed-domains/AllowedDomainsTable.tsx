@@ -69,39 +69,39 @@ export default function AllowedDomainsTable({ initialData }: { initialData: Allo
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b flex flex-col sm:flex-row gap-4 justify-between">
-          <input type="text" placeholder="Search domains..." value={search} onChange={(e) => setSearch(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 w-full sm:max-w-sm" />
-          <button onClick={openCreate} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">Add Domain</button>
+      <div className="bg-[#1a2332] rounded-xl border border-slate-800 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-800 flex flex-col sm:flex-row gap-4 justify-between">
+          <input type="text" placeholder="Search domains..." value={search} onChange={(e) => setSearch(e.target.value)} className="px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white placeholder-slate-500 w-full sm:max-w-sm" />
+          <button onClick={openCreate} className="px-4 py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm rounded-lg hover:from-violet-600 hover:to-purple-700 transition-all">Add Domain</button>
         </div>
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-[#151d2e]">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Apex Domain</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Apex Domain</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Created</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-slate-800">
             {filtered.length === 0 ? (
-              <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-500">No domains found</td></tr>
+              <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-500">No domains found</td></tr>
             ) : (
               filtered.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-900">{item.id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900 font-mono">{item.apex_domain}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{new Date(item.created_datetime_utc).toLocaleDateString()}</td>
+                <tr key={item.id} className="hover:bg-slate-800/30 transition-colors">
+                  <td className="px-6 py-4 text-sm text-slate-300">{item.id}</td>
+                  <td className="px-6 py-4 text-sm text-slate-300 font-mono">{item.apex_domain}</td>
+                  <td className="px-6 py-4 text-sm text-slate-400">{new Date(item.created_datetime_utc).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-right">
                     {deleteId === item.id ? (
                       <div className="flex gap-2 justify-end">
-                        <button onClick={() => handleDelete(item.id)} className="text-xs px-2 py-1 bg-red-600 text-white rounded">Confirm</button>
-                        <button onClick={() => setDeleteId(null)} className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded">Cancel</button>
+                        <button onClick={() => handleDelete(item.id)} className="text-xs px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">Confirm</button>
+                        <button onClick={() => setDeleteId(null)} className="text-xs px-3 py-1.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors">Cancel</button>
                       </div>
                     ) : (
                       <div className="flex gap-2 justify-end">
-                        <button onClick={() => openEdit(item)} className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Edit</button>
-                        <button onClick={() => setDeleteId(item.id)} className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200">Delete</button>
+                        <button onClick={() => openEdit(item)} className="text-xs px-3 py-1.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors">Edit</button>
+                        <button onClick={() => setDeleteId(item.id)} className="text-xs px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors">Delete</button>
                       </div>
                     )}
                   </td>
@@ -113,22 +113,22 @@ export default function AllowedDomainsTable({ initialData }: { initialData: Allo
       </div>
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Edit Domain" : "Add Domain"}>
-        {error && <div className="px-6 py-3 bg-red-50 border-b border-red-200"><p className="text-sm text-red-700">{error}</p></div>}
+        {error && <div className="px-6 py-3 bg-red-500/10 border-b border-red-500/20"><p className="text-sm text-red-400">{error}</p></div>}
         <div className="px-6 py-4 space-y-4">
           {!editing && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">ID *</label>
-              <input type="number" required value={formData.id} onChange={(e) => setFormData({ ...formData, id: Number(e.target.value) })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" />
+              <label className="block text-sm font-medium text-slate-300 mb-1">ID *</label>
+              <input type="number" required value={formData.id} onChange={(e) => setFormData({ ...formData, id: Number(e.target.value) })} className="w-full px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white" />
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Apex Domain *</label>
-            <input type="text" required value={formData.apex_domain} onChange={(e) => setFormData({ ...formData, apex_domain: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" placeholder="example.com" />
+            <label className="block text-sm font-medium text-slate-300 mb-1">Apex Domain *</label>
+            <input type="text" required value={formData.apex_domain} onChange={(e) => setFormData({ ...formData, apex_domain: e.target.value })} className="w-full px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white placeholder-slate-500" placeholder="example.com" />
           </div>
         </div>
-        <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
-          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-lg">Cancel</button>
-          <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{saving ? "Saving..." : editing ? "Update" : "Create"}</button>
+        <div className="px-6 py-4 border-t border-slate-800 flex justify-end gap-3">
+          <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Cancel</button>
+          <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 transition-all">{saving ? "Saving..." : editing ? "Update" : "Create"}</button>
         </div>
       </Modal>
     </>

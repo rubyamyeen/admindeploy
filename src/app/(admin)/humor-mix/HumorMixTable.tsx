@@ -71,35 +71,39 @@ export default function HumorMixTable({
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-[#1a2332] rounded-xl border border-slate-800 overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-[#151d2e]">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Flavor</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Caption Count</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Flavor</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Caption Count</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Created</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-slate-800">
             {items.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">No data found</td>
+                <td colSpan={5} className="px-6 py-8 text-center text-slate-500">No data found</td>
               </tr>
             ) : (
               items.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-900">{item.id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{item.humor_flavors?.slug ?? "—"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{item.caption_count}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                <tr key={item.id} className="hover:bg-slate-800/30 transition-colors">
+                  <td className="px-6 py-4 text-sm text-slate-300">{item.id}</td>
+                  <td className="px-6 py-4 text-sm">
+                    <span className="px-2 py-1 bg-violet-500/20 text-violet-400 rounded text-xs">
+                      {item.humor_flavors?.slug ?? "—"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-300">{item.caption_count}</td>
+                  <td className="px-6 py-4 text-sm text-slate-400">
                     {item.created_datetime_utc ? new Date(item.created_datetime_utc).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button
                       onClick={() => openEdit(item)}
-                      className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                      className="text-xs px-3 py-1.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors"
                     >
                       Edit
                     </button>
@@ -113,17 +117,17 @@ export default function HumorMixTable({
 
       <Modal isOpen={!!editing} onClose={() => setEditing(null)} title="Edit Humor Mix">
         {error && (
-          <div className="px-6 py-3 bg-red-50 border-b border-red-200">
-            <p className="text-sm text-red-700">{error}</p>
+          <div className="px-6 py-3 bg-red-500/10 border-b border-red-500/20">
+            <p className="text-sm text-red-400">{error}</p>
           </div>
         )}
         <div className="px-6 py-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Humor Flavor</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Humor Flavor</label>
             <select
               value={formData.humor_flavor_id}
               onChange={(e) => setFormData({ ...formData, humor_flavor_id: Number(e.target.value) })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              className="w-full px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white"
             >
               <option value={0}>Select a flavor...</option>
               {flavors.map((f) => (
@@ -132,26 +136,26 @@ export default function HumorMixTable({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Caption Count</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Caption Count</label>
             <input
               type="number"
               value={formData.caption_count}
               onChange={(e) => setFormData({ ...formData, caption_count: Number(e.target.value) })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              className="w-full px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white"
             />
           </div>
         </div>
-        <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
+        <div className="px-6 py-4 border-t border-slate-800 flex justify-end gap-3">
           <button
             onClick={() => setEditing(null)}
-            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-lg"
+            className="px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="px-4 py-2 text-sm bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 transition-all"
           >
             {saving ? "Saving..." : "Save"}
           </button>
