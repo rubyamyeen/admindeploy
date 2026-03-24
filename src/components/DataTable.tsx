@@ -80,14 +80,14 @@ export default function DataTable<T extends Record<string, any>>({
               setSearch(e.target.value);
               setPage(0);
             }}
-            className="w-full max-w-sm px-3 py-2 bg-[#0d1526] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-white placeholder-slate-500"
+            className="w-full max-w-sm px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white placeholder-slate-500"
           />
         </div>
       )}
 
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-[#111827]">
+          <thead className="bg-[#151d2e]">
             <tr>
               {columns.map((col) => (
                 <th
@@ -100,7 +100,7 @@ export default function DataTable<T extends Record<string, any>>({
                   <div className="flex items-center gap-1">
                     {col.label}
                     {sortKey === String(col.key) && (
-                      <span className="text-emerald-400">{sortDir === "asc" ? "↑" : "↓"}</span>
+                      <span className="text-cyan-400">{sortDir === "asc" ? "↑" : "↓"}</span>
                     )}
                   </div>
                 </th>
