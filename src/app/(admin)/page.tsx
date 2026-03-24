@@ -1,5 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function getDisplayName(email: string): string {
+  return email.split("@")[0];
+}
+
 interface RecentCaption {
   id: string;
   content: string | null;
@@ -168,17 +179,37 @@ function formatShortDate(dateStr: string): string {
 export default async function DashboardPage() {
   const data = await getDashboardData();
 
+  // Get user for welcome message
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const displayName = user?.email ? getDisplayName(user.email) : "Admin";
+  const greeting = getGreeting();
+
   // Find max for bar scaling
   const maxMonthlyCount = Math.max(...data.monthlyStats.map(s => s.count), 1);
   const maxFlavorCount = Math.max(...data.flavorStats.map(s => s.count), 1);
 
   return (
     <div className="space-y-6">
-      {/* Rainbow Gradient Bar */}
-      <div className="h-1.5 rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 via-40% via-rose-500 via-60% via-orange-400 via-80% to-emerald-400" />
+      {/* Welcome Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 p-6 lg:p-8">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-white/20 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-white/10 blur-3xl" />
+        </div>
+
+        <div className="relative z-10">
+          <p className="text-white/80 text-sm font-medium">{greeting},</p>
+          <h1 className="text-3xl lg:text-4xl font-bold text-white mt-1 tracking-tight">{displayName}</h1>
+          <p className="text-white/70 mt-3 max-w-xl text-sm lg:text-base">
+            Welcome to the AlmostCrack&apos;d admin panel. Here&apos;s an overview of your platform across Columbia University &amp; Barnard College.
+          </p>
+        </div>
+      </div>
 
       {data.error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4">
           <p className="text-red-400 font-medium">Error loading dashboard data</p>
           <p className="text-red-400/80 text-sm mt-1">{data.error}</p>
         </div>
@@ -187,85 +218,85 @@ export default async function DashboardPage() {
       {/* Primary Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Captions */}
-        <div className="bg-gradient-to-br from-violet-600 to-purple-700 rounded-xl p-5 relative">
-          <div className="absolute top-4 right-4 w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+        <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl p-5 relative overflow-hidden">
+          <div className="absolute top-4 right-4 w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </div>
-          <p className="text-sm text-white/70">Total Captions</p>
-          <p className="text-4xl font-bold text-white mt-1">{data.captionCount.toLocaleString()}</p>
-          <p className="text-sm text-white/50 mt-1">{data.avgCaptionsPerImage} avg per image</p>
+          <p className="text-sm text-white/80 font-medium">Total Captions</p>
+          <p className="text-4xl font-bold text-white mt-2 tracking-tight">{data.captionCount.toLocaleString()}</p>
+          <p className="text-sm text-white/60 mt-1">{data.avgCaptionsPerImage} avg per image</p>
         </div>
 
         {/* Total Images */}
-        <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-5 relative">
-          <div className="absolute top-4 right-4 w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+        <div className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl p-5 relative overflow-hidden">
+          <div className="absolute top-4 right-4 w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <p className="text-sm text-white/70">Total Images</p>
-          <p className="text-4xl font-bold text-white mt-1">{data.imageCount.toLocaleString()}</p>
+          <p className="text-sm text-white/80 font-medium">Total Images</p>
+          <p className="text-4xl font-bold text-white mt-2 tracking-tight">{data.imageCount.toLocaleString()}</p>
         </div>
 
         {/* Total Users */}
-        <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-5 relative">
-          <div className="absolute top-4 right-4 w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+        <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-5 relative overflow-hidden">
+          <div className="absolute top-4 right-4 w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           </div>
-          <p className="text-sm text-white/70">Total Users</p>
-          <p className="text-4xl font-bold text-white mt-1">{data.profileCount.toLocaleString()}</p>
+          <p className="text-sm text-white/80 font-medium">Total Users</p>
+          <p className="text-4xl font-bold text-white mt-2 tracking-tight">{data.profileCount.toLocaleString()}</p>
         </div>
 
         {/* Votes Cast (Likes) */}
-        <div className="bg-gradient-to-br from-cyan-500 to-teal-500 rounded-xl p-5 relative">
-          <div className="absolute top-4 right-4 w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+        <div className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-5 relative overflow-hidden">
+          <div className="absolute top-4 right-4 w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <p className="text-sm text-white/70">Votes Cast</p>
-          <p className="text-4xl font-bold text-white mt-1">{data.totalLikes.toLocaleString()}</p>
-          <p className="text-sm text-white/50 mt-1">{data.avgLikesPerCaption} avg per caption</p>
+          <p className="text-sm text-white/80 font-medium">Votes Cast</p>
+          <p className="text-4xl font-bold text-white mt-2 tracking-tight">{data.totalLikes.toLocaleString()}</p>
+          <p className="text-sm text-white/60 mt-1">{data.avgLikesPerCaption} avg per caption</p>
         </div>
       </div>
 
       {/* Secondary Stats Row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-4">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Requests</p>
-          <p className="text-2xl font-bold text-white mt-1">{data.captionRequestCount.toLocaleString()}</p>
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-4">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Requests</p>
+          <p className="text-2xl font-bold text-white mt-2 tracking-tight">{data.captionRequestCount.toLocaleString()}</p>
         </div>
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-4">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Likes</p>
-          <p className="text-2xl font-bold text-white mt-1">{data.totalLikes.toLocaleString()}</p>
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-4">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Likes</p>
+          <p className="text-2xl font-bold text-white mt-2 tracking-tight">{data.totalLikes.toLocaleString()}</p>
         </div>
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-4">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Shares</p>
-          <p className="text-2xl font-bold text-white mt-1">0</p>
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-4">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Shares</p>
+          <p className="text-2xl font-bold text-white mt-2 tracking-tight">0</p>
         </div>
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-4">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Featured</p>
-          <p className="text-2xl font-bold text-white mt-1">{data.featuredCount.toLocaleString()}</p>
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-4">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Featured</p>
+          <p className="text-2xl font-bold text-white mt-2 tracking-tight">{data.featuredCount.toLocaleString()}</p>
         </div>
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-4">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Reported</p>
-          <p className="text-2xl font-bold text-red-500 mt-1">0</p>
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-4">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Reported</p>
+          <p className="text-2xl font-bold text-red-400 mt-2 tracking-tight">0</p>
         </div>
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-4">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Flavors</p>
-          <p className="text-2xl font-bold text-white mt-1">{data.flavorCount.toLocaleString()}</p>
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-4">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Flavors</p>
+          <p className="text-2xl font-bold text-white mt-2 tracking-tight">{data.flavorCount.toLocaleString()}</p>
         </div>
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Captions Per Month */}
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-6">
-          <h3 className="text-base font-semibold text-white mb-5">Captions Per Month</h3>
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-6">
+          <h3 className="text-base font-semibold text-white mb-5 tracking-tight">Captions Per Month</h3>
           <div className="space-y-4">
             {data.monthlyStats.length === 0 ? (
               <p className="text-slate-500 text-sm">No data available</p>
@@ -287,7 +318,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Shares by Platform - placeholder since no data */}
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-6">
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-6">
           <h3 className="text-base font-semibold text-white mb-5">Shares by Platform</h3>
           <div className="space-y-4">
             {["Other", "iMessage", "Slack", "AirDrop", "TikTok", "Gmail", "WhatsApp", "Instagram"].map((platform, i) => (
@@ -309,7 +340,7 @@ export default async function DashboardPage() {
       {/* Flavor Stats & Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Flavor Distribution */}
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-6">
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-6">
           <h3 className="text-base font-semibold text-white mb-5">Captions by Flavor</h3>
           <div className="space-y-4">
             {data.flavorStats.length === 0 ? (
@@ -332,7 +363,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Activity Heatmap Placeholder */}
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-6">
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-6">
           <h3 className="text-base font-semibold text-white mb-5">Activity</h3>
           <div className="space-y-1">
             {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
@@ -372,7 +403,7 @@ export default async function DashboardPage() {
       {/* Top Captions & Recent Captions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Top Captions by Likes */}
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-6">
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-6">
           <h3 className="text-base font-semibold text-white mb-5">Top Captions by Likes</h3>
           <div className="space-y-4">
             {data.topCaptions.length === 0 ? (
@@ -399,7 +430,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Recent Captions */}
-        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-6">
+        <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 p-6">
           <h3 className="text-base font-semibold text-white mb-5">Recent Captions</h3>
           <div className="space-y-3">
             {data.recentCaptions.length === 0 ? (

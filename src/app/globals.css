@@ -2,6 +2,7 @@
 
 :root {
   --background: #0f1623;
+  --background-end: #1a1f2e;
   --foreground: #f1f5f9;
   --card: #1a2332;
   --card-border: #1e293b;
@@ -15,14 +16,23 @@
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(145deg, var(--background) 0%, var(--background-end) 50%, var(--background) 100%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
 }
 
 /* Force dark mode */
 html {
   color-scheme: dark;
+}
+
+/* Modern heading typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 /* Scrollbar styling */
@@ -47,4 +57,11 @@ html {
 /* Selection */
 ::selection {
   background: rgba(34, 211, 238, 0.2);
+}
+
+/* Pill button utility */
+.btn-pill {
+  border-radius: 9999px;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
 }

@@ -69,9 +69,9 @@ export default function DataTable<T extends Record<string, any>>({
   };
 
   return (
-    <div className="bg-[#1a2332] rounded-xl border border-slate-800 overflow-hidden">
+    <div className="bg-[#1a2332]/80 backdrop-blur-sm rounded-2xl border border-slate-800/50 overflow-hidden">
       {searchKeys.length > 0 && (
-        <div className="px-6 py-4 border-b border-slate-800">
+        <div className="px-6 py-4 border-b border-slate-800/50">
           <input
             type="text"
             placeholder="Search..."
@@ -80,7 +80,7 @@ export default function DataTable<T extends Record<string, any>>({
               setSearch(e.target.value);
               setPage(0);
             }}
-            className="w-full max-w-sm px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white placeholder-slate-500"
+            className="w-full max-w-sm px-4 py-2.5 bg-[#0f1623] border border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white placeholder-slate-500"
           />
         </div>
       )}
@@ -92,7 +92,7 @@ export default function DataTable<T extends Record<string, any>>({
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
-                  className={`px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider ${
+                  className={`px-6 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider ${
                     col.sortable !== false ? "cursor-pointer hover:bg-slate-800/50" : ""
                   }`}
                   onClick={() => col.sortable !== false && handleSort(String(col.key))}
@@ -107,7 +107,7 @@ export default function DataTable<T extends Record<string, any>>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800">
+          <tbody className="divide-y divide-slate-800/50">
             {pagedData.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-6 py-8 text-center text-slate-500">
@@ -132,7 +132,7 @@ export default function DataTable<T extends Record<string, any>>({
       </div>
 
       {totalPages > 1 && (
-        <div className="px-6 py-4 border-t border-slate-800 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-slate-800/50 flex items-center justify-between">
           <span className="text-sm text-slate-500">
             Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, sortedData.length)} of{" "}
             {sortedData.length}
@@ -141,14 +141,14 @@ export default function DataTable<T extends Record<string, any>>({
             <button
               onClick={() => setPage(Math.max(0, page - 1))}
               disabled={page === 0}
-              className="px-3 py-1 text-sm bg-slate-800 text-slate-300 border border-slate-700 rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-1.5 text-sm bg-slate-800 text-slate-300 border border-slate-700 rounded-full hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Prev
             </button>
             <button
               onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
               disabled={page >= totalPages - 1}
-              className="px-3 py-1 text-sm bg-slate-800 text-slate-300 border border-slate-700 rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-1.5 text-sm bg-slate-800 text-slate-300 border border-slate-700 rounded-full hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>
