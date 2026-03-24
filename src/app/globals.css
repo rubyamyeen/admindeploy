@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f172a;
+  --background: #0d1526;
   --foreground: #f1f5f9;
+  --sidebar: #111827;
+  --card: #1a2332;
+  --card-border: #1e293b;
 }
 
 @theme inline {
@@ -30,14 +33,19 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #111827;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: #374151;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: #4b5563;
+}
+
+/* Selection */
+::selection {
+  background: rgba(139, 92, 246, 0.3);
 }

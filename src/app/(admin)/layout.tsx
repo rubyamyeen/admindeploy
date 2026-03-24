@@ -10,8 +10,8 @@ export default async function AdminRootLayout({
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 max-w-lg w-full">
+      <div className="min-h-screen bg-[#0d1526] flex items-center justify-center p-4">
+        <div className="bg-[#1a2332] rounded-xl border border-slate-800 p-6 max-w-lg w-full">
           <h1 className="text-xl font-bold text-red-400 mb-4">Admin Error</h1>
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
             <p className="text-red-400 font-medium">Failed to load admin area</p>
