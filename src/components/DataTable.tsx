@@ -69,9 +69,9 @@ export default function DataTable<T extends Record<string, any>>({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700/50 overflow-hidden">
       {searchKeys.length > 0 && (
-        <div className="px-6 py-4 border-b">
+        <div className="px-6 py-4 border-b border-slate-700/50">
           <input
             type="text"
             placeholder="Search..."
@@ -80,45 +80,45 @@ export default function DataTable<T extends Record<string, any>>({
               setSearch(e.target.value);
               setPage(0);
             }}
-            className="w-full max-w-sm px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+            className="w-full max-w-sm px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-white placeholder-slate-400"
           />
         </div>
       )}
 
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-slate-900/50">
             <tr>
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
-                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                    col.sortable !== false ? "cursor-pointer hover:bg-gray-100" : ""
+                  className={`px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider ${
+                    col.sortable !== false ? "cursor-pointer hover:bg-slate-700/50" : ""
                   }`}
                   onClick={() => col.sortable !== false && handleSort(String(col.key))}
                 >
                   <div className="flex items-center gap-1">
                     {col.label}
                     {sortKey === String(col.key) && (
-                      <span>{sortDir === "asc" ? "↑" : "↓"}</span>
+                      <span className="text-violet-400">{sortDir === "asc" ? "↑" : "↓"}</span>
                     )}
                   </div>
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-slate-700/50">
             {pagedData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={columns.length} className="px-6 py-8 text-center text-slate-400">
                   No data found
                 </td>
               </tr>
             ) : (
               pagedData.map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-50">
+                <tr key={idx} className="hover:bg-slate-700/30 transition-colors">
                   {columns.map((col) => (
-                    <td key={String(col.key)} className="px-6 py-4 text-sm text-gray-900">
+                    <td key={String(col.key)} className="px-6 py-4 text-sm text-slate-200">
                       {col.render
                         ? col.render(getValue(row, String(col.key)), row)
                         : String(getValue(row, String(col.key)) ?? "—")}
@@ -132,8 +132,8 @@ export default function DataTable<T extends Record<string, any>>({
       </div>
 
       {totalPages > 1 && (
-        <div className="px-6 py-4 border-t flex items-center justify-between">
-          <span className="text-sm text-gray-600">
+        <div className="px-6 py-4 border-t border-slate-700/50 flex items-center justify-between">
+          <span className="text-sm text-slate-400">
             Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, sortedData.length)} of{" "}
             {sortedData.length}
           </span>
@@ -141,14 +141,14 @@ export default function DataTable<T extends Record<string, any>>({
             <button
               onClick={() => setPage(Math.max(0, page - 1))}
               disabled={page === 0}
-              className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+              className="px-3 py-1 text-sm bg-slate-700 text-slate-200 border border-slate-600 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Prev
             </button>
             <button
               onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
               disabled={page >= totalPages - 1}
-              className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+              className="px-3 py-1 text-sm bg-slate-700 text-slate-200 border border-slate-600 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>

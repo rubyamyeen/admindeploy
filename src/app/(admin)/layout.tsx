@@ -10,19 +10,19 @@ export default async function AdminRootLayout({
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
-          <h1 className="text-xl font-bold text-red-700 mb-4">Admin Error</h1>
-          <div className="bg-red-50 border border-red-200 rounded p-4">
-            <p className="text-red-800 font-medium">Failed to load admin area</p>
-            <p className="text-red-600 text-sm mt-2">{error}</p>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6 max-w-lg w-full">
+          <h1 className="text-xl font-bold text-red-400 mb-4">Admin Error</h1>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+            <p className="text-red-400 font-medium">Failed to load admin area</p>
+            <p className="text-red-400/80 text-sm mt-2">{error}</p>
           </div>
-          <p className="text-gray-600 text-sm mt-4">
+          <p className="text-slate-400 text-sm mt-4">
             Check Vercel logs for more details.
           </p>
           <a
             href="/login"
-            className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="inline-block mt-4 px-4 py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg hover:from-violet-600 hover:to-purple-700 transition-all"
           >
             Back to Login
           </a>

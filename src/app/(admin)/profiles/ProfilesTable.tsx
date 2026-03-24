@@ -48,10 +48,10 @@ export default function ProfilesTable({ initialData }: ProfilesTableProps) {
           render: (_, row) => {
             const p = row as ProfileRow;
             const roles = [];
-            if (p.is_superadmin) roles.push(<span key="sa" className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded">Superadmin</span>);
-            if (p.is_matrix_admin) roles.push(<span key="ma" className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded">Matrix</span>);
-            if (p.is_in_study) roles.push(<span key="is" className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">Study</span>);
-            return <div className="flex gap-1 flex-wrap">{roles.length > 0 ? roles : <span className="text-gray-400">—</span>}</div>;
+            if (p.is_superadmin) roles.push(<span key="sa" className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded-lg">Superadmin</span>);
+            if (p.is_matrix_admin) roles.push(<span key="ma" className="px-2 py-1 text-xs bg-violet-500/20 text-violet-400 rounded-lg">Matrix</span>);
+            if (p.is_in_study) roles.push(<span key="is" className="px-2 py-1 text-xs bg-blue-500/20 text-blue-400 rounded-lg">Study</span>);
+            return <div className="flex gap-1 flex-wrap">{roles.length > 0 ? roles : <span className="text-slate-500">—</span>}</div>;
           },
         },
         {

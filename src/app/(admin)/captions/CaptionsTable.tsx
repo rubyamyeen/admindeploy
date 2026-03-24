@@ -54,9 +54,9 @@ export default function CaptionsTable({ initialData }: CaptionsTableProps) {
           render: (_, row) => {
             const c = row as CaptionRow;
             const flags = [];
-            if (c.is_public) flags.push(<span key="p" className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Public</span>);
-            if (c.is_featured) flags.push(<span key="f" className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded">Featured</span>);
-            return <div className="flex gap-1">{flags.length > 0 ? flags : <span className="text-gray-400">—</span>}</div>;
+            if (c.is_public) flags.push(<span key="p" className="px-2 py-1 text-xs bg-emerald-500/20 text-emerald-400 rounded-lg">Public</span>);
+            if (c.is_featured) flags.push(<span key="f" className="px-2 py-1 text-xs bg-yellow-500/20 text-yellow-400 rounded-lg">Featured</span>);
+            return <div className="flex gap-1">{flags.length > 0 ? flags : <span className="text-slate-500">—</span>}</div>;
           },
         },
         {

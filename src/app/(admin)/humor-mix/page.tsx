@@ -56,14 +56,14 @@ export default async function HumorMixPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Humor Mix</h1>
-        <span className="text-sm text-gray-500">{mix.length} total</span>
+        <h1 className="text-2xl font-bold text-white">Humor Mix</h1>
+        <span className="text-sm text-slate-400">{mix.length} total</span>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-700 font-medium">Failed to load humor mix</p>
-          <p className="text-red-600 text-sm mt-1">{error}</p>
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+          <p className="text-red-400 font-medium">Failed to load humor mix</p>
+          <p className="text-red-400/80 text-sm mt-1">{error}</p>
         </div>
       )}
 

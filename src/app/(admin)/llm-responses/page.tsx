@@ -37,14 +37,14 @@ export default async function LlmResponsesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">LLM Responses</h1>
-        <span className="text-sm text-gray-500">{data.length} shown (max 200)</span>
+        <h1 className="text-2xl font-bold text-white">LLM Responses</h1>
+        <span className="text-sm text-slate-400">{data.length} shown (max 200)</span>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-700 font-medium">Failed to load LLM responses</p>
-          <p className="text-red-600 text-sm mt-1">{error}</p>
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+          <p className="text-red-400 font-medium">Failed to load LLM responses</p>
+          <p className="text-red-400/80 text-sm mt-1">{error}</p>
         </div>
       )}
 
