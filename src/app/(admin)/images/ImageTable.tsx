@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createImage, updateImage, deleteImage, type ImageFormData } from "./actions";
 import { uploadImage } from "@/lib/actions";
@@ -26,6 +26,9 @@ const emptyForm: ImageFormData = {
   image_description: "",
 };
 
+// Supported image types including screenshots
+const ACCEPTED_IMAGE_TYPES = "image/png,image/jpeg,image/jpg,image/gif,image/webp,image/bmp,image/svg+xml,image/heic,image/heif";
+
 export default function ImageTable({ initialImages }: { initialImages: ImageRow[] }) {
   const [images, setImages] = useState(initialImages);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,7 +40,10 @@ export default function ImageTable({ initialImages }: { initialImages: ImageRow[
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [pastedFile, setPastedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
   const [uploadData, setUploadData] = useState({
     is_public: false,
     is_common_use: false,
@@ -45,6 +51,62 @@ export default function ImageTable({ initialImages }: { initialImages: ImageRow[
     image_description: "",
   });
   const router = useRouter();
+
+  // Handle clipboard paste for screenshots
+  const handlePaste = useCallback((e: ClipboardEvent) => {
+    if (!isUploadModalOpen) return;
+
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        const file = item.getAsFile();
+        if (file) {
+          setPastedFile(file);
+          if (fileInputRef.current) {
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInputRef.current.files = dataTransfer.files;
+          }
+          setErrorMessage(null);
+        }
+        break;
+      }
+    }
+  }, [isUploadModalOpen]);
+
+  // Handle drag and drop
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith("image/")) {
+      setPastedFile(files[0]);
+      if (fileInputRef.current) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(files[0]);
+        fileInputRef.current.files = dataTransfer.files;
+      }
+      setErrorMessage(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, [handlePaste]);
 
   const filtered = images.filter((i) =>
     (i.image_description?.toLowerCase() || "").includes(search.toLowerCase()) ||
@@ -61,6 +123,7 @@ export default function ImageTable({ initialImages }: { initialImages: ImageRow[
   const openUploadModal = () => {
     setUploadData({ is_public: false, is_common_use: false, additional_context: "", image_description: "" });
     setErrorMessage(null);
+    setPastedFile(null);
     setIsUploadModalOpen(true);
   };
 
@@ -110,8 +173,8 @@ export default function ImageTable({ initialImages }: { initialImages: ImageRow[
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    const file = fileInputRef.current?.files?.[0];
-    if (!file) { setErrorMessage("Please select a file"); return; }
+    const file = pastedFile || fileInputRef.current?.files?.[0];
+    if (!file) { setErrorMessage("Please select a file, paste a screenshot, or drag and drop an image"); return; }
 
     setIsSubmitting(true);
     setErrorMessage(null);
@@ -128,6 +191,7 @@ export default function ImageTable({ initialImages }: { initialImages: ImageRow[
       if (result.error) { setErrorMessage(result.error); return; }
       setImages([result.data as ImageRow, ...images]);
       setIsUploadModalOpen(false);
+      setPastedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
       router.refresh();
     } catch (error: unknown) {
@@ -354,13 +418,70 @@ export default function ImageTable({ initialImages }: { initialImages: ImageRow[
       </Modal>
 
       {/* Upload Modal */}
-      <Modal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} title="Upload Image">
+      <Modal isOpen={isUploadModalOpen} onClose={() => { setIsUploadModalOpen(false); setPastedFile(null); }} title="Upload Image / Screenshot">
         <form onSubmit={handleUpload}>
           {errorMessage && <div className="px-6 py-3 bg-red-500/10 border-b border-red-500/20"><p className="text-sm text-red-400">{errorMessage}</p></div>}
           <div className="px-6 py-4 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Image File *</label>
-              <input ref={fileInputRef} type="file" accept="image/*" required className="w-full px-3 py-2 bg-[#0f1623] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-white file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-slate-700 file:text-slate-300 hover:file:bg-slate-600" />
+              <label className="block text-sm font-medium text-slate-300 mb-2">Image File *</label>
+              <div
+                ref={dropZoneRef}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                  isDragging
+                    ? "border-cyan-500 bg-cyan-500/10"
+                    : pastedFile
+                      ? "border-emerald-500 bg-emerald-500/10"
+                      : "border-slate-700 hover:border-slate-600"
+                }`}
+              >
+                {pastedFile ? (
+                  <div className="space-y-2">
+                    <div className="w-12 h-12 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center">
+                      <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <p className="text-sm text-emerald-400 font-medium">{pastedFile.name || "Screenshot ready"}</p>
+                    <p className="text-xs text-slate-500">{(pastedFile.size / 1024).toFixed(1)} KB</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="w-12 h-12 mx-auto bg-slate-800 rounded-full flex items-center justify-center">
+                      <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <p className="text-sm text-slate-300">Drop an image here, paste a screenshot (Ctrl+V), or</p>
+                    <p className="text-xs text-slate-500">PNG, JPG, GIF, WebP, BMP, SVG, HEIC supported</p>
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={ACCEPTED_IMAGE_TYPES}
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      setPastedFile(e.target.files[0]);
+                    }
+                  }}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+              {pastedFile && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPastedFile(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  className="mt-2 text-xs text-slate-400 hover:text-white transition-colors"
+                >
+                  Clear selection
+                </button>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Description</label>
