@@ -19,6 +19,7 @@ const navGroups = [
     items: [
       { href: "/images", label: "Images" },
       { href: "/captions", label: "Captions" },
+      { href: "/caption-ratings", label: "Caption Ratings" },
       { href: "/caption-requests", label: "Caption Requests" },
       { href: "/caption-examples", label: "Caption Examples" },
       { href: "/terms", label: "Terms" },

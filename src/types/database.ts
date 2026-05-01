@@ -132,3 +132,10 @@ export interface WhitelistedEmailAddress extends AuditFields {
   id: number;
   email_address: string;
 }
+
+export interface CaptionVote extends AuditFields {
+  id: string;
+  caption_id: string;
+  profile_id: string;
+  vote_value: number; // 1 for upvote, -1 for downvote
+}
